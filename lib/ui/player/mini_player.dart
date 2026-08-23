@@ -1,0 +1,152 @@
+import 'package:flutter/material.dart';
+
+import '../../data/mock_data.dart';
+import '../../theme/dimensions.dart';
+import '../common/artwork_widget.dart';
+import 'now_playing_screen.dart';
+
+/// Persistent mini player widget.
+///
+/// Displays a floating pill-shaped bar with artwork, song info,
+/// play/pause and next controls, and a thin progress indicator.
+/// Tapping opens the full Now Playing screen.
+class MiniPlayer extends StatefulWidget {
+  const MiniPlayer({super.key});
+
+  @override
+  State<MiniPlayer> createState() => _MiniPlayerState();
+}
+
+class _MiniPlayerState extends State<MiniPlayer> {
+  // Mock state for Phase 1
+  bool _isPlaying = true;
+  final double _progress = 0.35;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final song = mockCurrentSong;
+
+    return GestureDetector(
+      onTap: () => _openNowPlaying(context),
+      child: Container(
+        margin: const EdgeInsets.symmetric(
+          horizontal: Spacing.md,
+          vertical: Spacing.sm,
+        ),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(Radii.medium),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Main content
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                Spacing.sm,
+                Spacing.sm,
+                Spacing.xs,
+                Spacing.sm,
+              ),
+              child: Row(
+                children: [
+                  // Artwork
+                  ArtworkWidget(
+                    artworkPath: song.artworkPath,
+                    size: 44,
+                    borderRadius: BorderRadius.circular(Radii.small),
+                  ),
+
+                  const SizedBox(width: Spacing.md),
+
+                  // Song info
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          song.title,
+                          style: theme.textTheme.titleSmall,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          song.artist,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Play/Pause
+                  IconButton(
+                    icon: Icon(
+                      _isPlaying
+                          ? Icons.pause_rounded
+                          : Icons.play_arrow_rounded,
+                    ),
+                    onPressed: () => setState(() => _isPlaying = !_isPlaying),
+                  ),
+
+                  // Next
+                  IconButton(
+                    icon: const Icon(Icons.skip_next_rounded),
+                    onPressed: () {},
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ],
+              ),
+            ),
+
+            // Progress bar
+            LinearProgressIndicator(
+              value: _progress,
+              minHeight: 2,
+              backgroundColor: Colors.transparent,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                theme.colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openNowPlaying(BuildContext context) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const NowPlayingScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return SlideTransition(
+            position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
+                .animate(
+                  CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutCubic,
+                  ),
+                ),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+      ),
+    );
+  }
+}

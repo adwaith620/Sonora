@@ -1,0 +1,46 @@
+name: sonora
+description: "Your music, locally. A cross-platform offline music player."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Navigation
+  go_router: ^14.8.1
+
+  # Theming
+  dynamic_color: ^1.7.0
+  palette_generator: ^0.3.3+4
+  google_fonts: ^6.2.1
+
+  # Platform - Desktop
+  window_manager: ^0.4.3
+
+  # Utilities
+  path_provider: ^2.1.5
+  collection: ^1.19.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  riverpod_generator: ^2.6.3
+  build_runner: ^2.4.14
+  custom_lint: ^0.7.5
+  riverpod_lint: ^2.6.3
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
