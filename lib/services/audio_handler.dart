@@ -1,13 +1,13 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:media_kit/media_kit.dart';
-import 'audio_player_service.dart';
+import 'audio_player_service.dart' as sonora;
 
 /// Integrates Sonora with the Android OS background audio service.
 class SonoraAudioHandler extends BaseAudioHandler with SeekHandler {
   // We'll set this from MediaKitAudioService after initialization
-  AudioPlayerService? audioService;
+  sonora.AudioPlayerService? audioService;
 
-  void broadcastState(PlaybackState state) {
+  void broadcastState(sonora.PlaybackState state) {
     final playing = state.isPlaying;
     
     playbackState.add(playbackState.value.copyWith(

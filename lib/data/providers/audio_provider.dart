@@ -1,4 +1,4 @@
-import 'package:audio_service/audio_service.dart';
+import 'package:audio_service/audio_service.dart' hide PlaybackState;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/audio_player_service.dart';
 import '../../services/media_kit_audio_service.dart';
