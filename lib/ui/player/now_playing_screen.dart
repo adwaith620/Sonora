@@ -18,7 +18,7 @@ class NowPlayingScreen extends ConsumerWidget {
     final size = MediaQuery.sizeOf(context);
     final isCompact = size.width < 600;
 
-    final playbackState = ref.watch(playbackStateProvider).valueOrNull ?? const PlaybackState();
+    final playbackState = ref.watch(playbackStateProvider);
     final currentSong = playbackState.currentSong;
 
     if (currentSong == null) {

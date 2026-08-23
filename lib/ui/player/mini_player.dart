@@ -17,8 +17,8 @@ class MiniPlayer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final playbackState = ref.watch(playbackStateProvider).valueOrNull;
-    final song = playbackState?.currentSong;
+    final playbackState = ref.watch(playbackStateProvider);
+    final song = playbackState.currentSong;
     final audio = ref.read(audioPlayerServiceProvider);
 
     if (song == null) {
@@ -93,7 +93,7 @@ class MiniPlayer extends ConsumerWidget {
                   // Play/Pause
                   IconButton(
                     icon: Icon(
-                      playbackState!.isPlaying
+                      playbackState.isPlaying
                           ? Icons.pause_rounded
                           : Icons.play_arrow_rounded,
                     ),
