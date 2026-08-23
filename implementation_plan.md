@@ -18,6 +18,32 @@ After evaluating Kotlin Multiplatform + Compose, Flutter, and React Native, **Fl
 | **Windows Media Keys** | `smtc_windows` (SMTC integration) |
 | **File System** | `dart:io` + Isolates + `file_picker` |
 
+## Roadmap
+
+We will approach this in **15 iterative phases**. This ensures stable progress and testable milestones.
+
+### Milestone 1: Foundation (Completed)
+- **Phase 1: Project Setup & UI Shell (Completed)**
+  - Setup Flutter project (Windows + Android).
+  - Setup Material 3 `ThemeData` (Dark/Light).
+  - Create `AppShell` with adaptive navigation (BottomNavigationBar for mobile, NavigationRail for desktop).
+  - Create mock data models (`Song`, `Album`, `Artist`, `Playlist`).
+  - Build UI layout shells for Home, Library, Now Playing, and Mini Player using mock data.
+
+### Milestone 2: Data & State (Completed)
+- **Phase 2: Local Database (Completed)**
+  - Integrate `drift` (SQLite).
+  - Define normalized tables: `Songs`, `Albums`, `Artists`, `Playlists`, `PlaylistEntries`.
+  - Create base DAOs.
+  - Setup Riverpod providers for database access.
+
+### Milestone 3: Audio Engine (Completed)
+- **Phase 3: Real Audio Engine (Completed)**
+  - Integrate `media_kit` for cross-platform audio playback.
+  - Integrate `audio_service` for Android background playback.
+  - Create Riverpod queue manager (`PlaybackStateNotifier`).
+  - Connect UI to real playback state instead of mocks.
+
 **Why Flutter over KMP?** Unified audio engine (`media_kit` works identically on both platforms vs needing Media3 + vlcj split), turnkey Windows SMTC package, proven by production apps like Spotube, simpler toolchain.
 
 ---
