@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,6 +6,7 @@ import '../../data/models/song.dart';
 import '../../data/providers/audio_provider.dart';
 import '../../data/providers/repository_providers.dart';
 import '../../theme/dimensions.dart';
+import '../common/artwork_widget.dart';
 
 final songsListProvider = FutureProvider<List<Song>>((ref) async {
   final db = ref.watch(libraryRepositoryProvider);
@@ -19,7 +18,6 @@ class SongsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final audioService = ref.read(audioPlayerServiceProvider);
     final songsAsync = ref.watch(songsListProvider);
 
@@ -85,25 +83,10 @@ class SongsScreen extends ConsumerWidget {
 
                     final song = songs[index - 1];
                     return ListTile(
-                      leading: Container(
-                        width: kArtworkThumbnailSize,
-                        height: kArtworkThumbnailSize,
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(Spacing.xs),
-                          image: song.artworkPath != null
-                              ? DecorationImage(
-                                  image: FileImage(File(song.artworkPath!)),
-                                  fit: BoxFit.cover,
-                                )
-                              : null,
-                        ),
-                        child: song.artworkPath == null
-                            ? Icon(
-                                Icons.music_note_rounded,
-                                color: theme.colorScheme.onSurfaceVariant,
-                              )
-                            : null,
+                      leading: ArtworkWidget(
+                        artworkPath: song.artworkPath,
+                        size: kArtworkThumbnailSize,
+                        borderRadius: BorderRadius.circular(Spacing.xs),
                       ),
                       title: Text(
                         song.title,

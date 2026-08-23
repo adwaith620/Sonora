@@ -46,26 +46,33 @@ class ArtworkWidget extends StatelessWidget {
     final theme = Theme.of(context);
     final radius = _effectiveBorderRadius;
 
+    final Widget child = artworkPath != null
+        ? Image.file(
+            File(artworkPath!),
+            key: ValueKey(artworkPath),
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => _placeholder(theme),
+          )
+        : _placeholder(theme);
+
     return ClipRRect(
       borderRadius: radius,
       child: SizedBox(
         width: size,
         height: size,
-        child: artworkPath != null && File(artworkPath!).existsSync()
-            ? Image.file(
-                File(artworkPath!),
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    _placeholder(theme),
-              )
-            : _placeholder(theme),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: child,
+        ),
       ),
     );
   }
 
   Widget _placeholder(ThemeData theme) {
     return Container(
+      key: const ValueKey('placeholder'),
       color: theme.colorScheme.surfaceContainerHighest,
+      alignment: Alignment.center,
       child: Icon(
         icon ?? Icons.music_note_rounded,
         size: iconSize ?? size * 0.4,
