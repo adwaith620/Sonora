@@ -47,3 +47,7 @@ Sonora follows a layered architecture to ensure separation of concerns, testabil
 - **Missing Files**: Tracks discovered files during the scan and deletes database records for files that are no longer present on the filesystem.
 - **Permissions & Storage**: On Android, Sonora uses the Storage Access Framework (SAF) via the `saf` package. The user picks a directory, granting a persistable `content://` tree URI. The scanner reads files directly through SAF file descriptors without requiring broad permissions like `MANAGE_EXTERNAL_STORAGE` or `READ_MEDIA_AUDIO`. Windows builds continue to use standard native filesystem paths.
 - **Scanner Abstraction**: Files are abstracted behind `MusicFileReference` (`AndroidSafMusicFileReference` and `WindowsMusicFileReference`), allowing the metadata parser to read streams or descriptors agnostically.
+
+
+## Dependency Notes
+- **flutter_plugin_android_lifecycle**: Locked to 2.0.21 in pubspec.yaml via dependency_overrides. Newer versions (2.0.35+) were published demanding compileSdk 36, which breaks the build against Flutter's default API 34 targets for plugins like ile_picker. Version 2.0.21 remains entirely functional for Android 34.

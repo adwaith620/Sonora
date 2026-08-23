@@ -72,3 +72,5 @@ migrate_working_dir/
 
 # Exceptions to above rules.
 !**/ios/**/default.pbxuser
+
+android/build/
