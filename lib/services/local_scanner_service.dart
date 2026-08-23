@@ -5,12 +5,16 @@ import 'package:audio_metadata_reader/audio_metadata_reader.dart';
 import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/foundation.dart';
+
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:saf/saf.dart';
 import 'package:uuid/uuid.dart';
 
 import '../core/constants.dart';
+import '../core/file_reference.dart';
 import '../data/database/database.dart';
+
 import 'scanner_service.dart';
 
 class LocalScannerService implements ScannerService {
@@ -81,25 +85,48 @@ class LocalScannerService implements ScannerService {
       int updated = 0;
 
       // 1. Discovery Phase
-      final filesToProcess = <File>[];
+      final filesToProcess = <MusicFileReference>[];
+      final saf = Saf(); // We'll create instances dynamically as needed
+
       for (final loc in enabledLocations) {
         if (_isCancelled) break;
-        final dir = Directory(loc.folderPath);
-        if (await dir.exists()) {
-          await for (final entity in dir.list(
-            recursive: true,
-            followLinks: false,
-          )) {
-            if (_isCancelled) break;
-            if (entity is File) {
-              final ext = p.extension(entity.path).toLowerCase();
-              if (kSupportedAudioExtensions.contains(ext)) {
-                filesToProcess.add(entity);
-                discovered++;
-                if (discovered % 100 == 0) {
-                  _emit(_state.copyWith(filesDiscovered: discovered));
-                  // Yield to event loop to keep UI responsive
-                  await Future.delayed(Duration.zero);
+        
+        if (Platform.isAndroid && loc.folderUri.startsWith('content://')) {
+          // Android SAF
+          final stream = saf.walk(loc.folderUri);
+          await for (final entry in stream) {
+             if (_isCancelled) break;
+             if (!entry.file.isDir) {
+                final ext = p.extension(entry.file.name).toLowerCase();
+                if (kSupportedAudioExtensions.contains(ext)) {
+                  filesToProcess.add(AndroidSafMusicFileReference(entry.file, saf));
+                  discovered++;
+                  if (discovered % 100 == 0) {
+                    _emit(_state.copyWith(filesDiscovered: discovered));
+                    await Future.delayed(Duration.zero);
+                  }
+                }
+             }
+          }
+        } else {
+          // Windows / standard filesystem
+          final dir = Directory(loc.folderUri);
+          if (await dir.exists()) {
+            await for (final entity in dir.list(
+              recursive: true,
+              followLinks: false,
+            )) {
+              if (_isCancelled) break;
+              if (entity is File) {
+                final ext = p.extension(entity.path).toLowerCase();
+                if (kSupportedAudioExtensions.contains(ext)) {
+                  filesToProcess.add(WindowsMusicFileReference(entity));
+                  discovered++;
+                  if (discovered % 100 == 0) {
+                    _emit(_state.copyWith(filesDiscovered: discovered));
+                    // Yield to event loop to keep UI responsive
+                    await Future.delayed(Duration.zero);
+                  }
                 }
               }
             }
@@ -113,27 +140,26 @@ class LocalScannerService implements ScannerService {
       for (final file in filesToProcess) {
         if (_isCancelled) break;
 
-        foundPaths.add(file.path);
+        foundPaths.add(file.uri);
         processed++;
 
         if (processed % 10 == 0) {
           _emit(
             _state.copyWith(
               filesProcessed: processed,
-              currentFile: p.basename(file.path),
+              currentFile: file.name,
             ),
           );
           await Future.delayed(Duration.zero); // Keep UI responsive
         }
 
         try {
-          final isNew = !existingPathsSet.contains(file.path);
-          final stat = await file.stat();
-          final fileSize = stat.size;
+          final isNew = !existingPathsSet.contains(file.uri);
+          final fileSize = await file.getSize();
 
           if (!isNew) {
             // Check if file has been modified
-            final existingSong = await _db.libraryDao.getSongByPath(file.path);
+            final existingSong = await _db.libraryDao.getSongByPath(file.uri);
             if (existingSong != null && existingSong.fileSize == fileSize) {
               // Unchanged, skip expensive metadata extraction
               continue;
@@ -141,10 +167,12 @@ class LocalScannerService implements ScannerService {
           }
 
           // Extract metadata
-          final metadata = readMetadata(file, getImage: true);
+          final metadata = await file.withFile((f) async {
+            return readMetadata(f, getImage: true);
+          });
 
           // Fallbacks
-          final title = metadata.title ?? p.basenameWithoutExtension(file.path);
+          final title = metadata.title ?? p.basenameWithoutExtension(file.name);
           final artistName = metadata.artist ?? 'Unknown Artist';
           final albumName = metadata.album ?? 'Unknown Album';
           final durationMillis = metadata.duration?.inMilliseconds ?? 0;
@@ -205,12 +233,12 @@ class LocalScannerService implements ScannerService {
           // Song creation/update
           final existingSong = isNew
               ? null
-              : await _db.libraryDao.getSongByPath(file.path);
+              : await _db.libraryDao.getSongByPath(file.uri);
           final songId = existingSong?.id ?? _uuid.v4();
 
           final songEntity = SongEntity(
             id: songId,
-            filePath: file.path,
+            fileUri: file.uri,
             title: title,
             artistId: artistEntity.id,
             albumId: albumEntity.id,
@@ -237,7 +265,7 @@ class LocalScannerService implements ScannerService {
             updated++;
           }
         } catch (e) {
-          debugPrint('Error processing file ${file.path}: $e');
+          debugPrint('Error processing file ${file.uri}: $e');
           // Don't crash, continue with other files
         }
       }

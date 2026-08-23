@@ -90,7 +90,7 @@ class MediaKitAudioService implements AudioPlayerService {
 
   Future<void> _syncPlaylistToPlayer() async {
     final medias = currentState.queue
-        .map((song) => Media(song.filePath))
+        .map((song) => Media(song.fileUri))
         .toList();
     final playlist = Playlist(medias, index: currentState.currentIndex);
 
@@ -158,7 +158,7 @@ class MediaKitAudioService implements AudioPlayerService {
     _notifier.toggleShuffle();
     await _player.open(
       Playlist(
-        currentState.queue.map((s) => Media(s.filePath)).toList(),
+        currentState.queue.map((s) => Media(s.fileUri)).toList(),
         index: currentState.currentIndex,
       ),
       play: currentState.isPlaying,
@@ -174,7 +174,7 @@ class MediaKitAudioService implements AudioPlayerService {
   @override
   Future<void> addToQueue(Song song) async {
     _notifier.addToQueue(song);
-    await _player.add(Media(song.filePath));
+    await _player.add(Media(song.fileUri));
   }
 
   @override
@@ -182,7 +182,7 @@ class MediaKitAudioService implements AudioPlayerService {
     _notifier.addToQueueNext(song);
     await _player.open(
       Playlist(
-        currentState.queue.map((s) => Media(s.filePath)).toList(),
+        currentState.queue.map((s) => Media(s.fileUri)).toList(),
         index: currentState.currentIndex,
       ),
       play: currentState.isPlaying,
@@ -209,7 +209,7 @@ class MediaKitAudioService implements AudioPlayerService {
       await _player.open(const Playlist([]));
     } else {
       await _player.open(
-        Playlist([Media(current.filePath)]),
+        Playlist([Media(current.fileUri)]),
         play: currentState.isPlaying,
       );
     }

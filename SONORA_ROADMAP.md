@@ -41,7 +41,7 @@ This document tracks the progress of the Sonora project milestones.
   - Verify Android APK build.
 
 ### Phase 4: Local Library Scanner 🟢 (COMPLETED)
-- [x] Configure Android scoped storage / file picker permissions
+- [x] Configure Android scoped storage / file picker permissions (Migrated to native SAF)
 - [x] Implement music folder selection UI
 - [x] Create recursive file scanner for supported audio formats
 - [x] Extract metadata (pure Dart `audio_metadata_reader`)

@@ -9,7 +9,7 @@ extension SongEntityMapper on SongEntity {
   Song toDomain() {
     return Song(
       id: id,
-      filePath: filePath,
+      fileUri: fileUri,
       title: title,
       artist: artistName,
       album: albumName,

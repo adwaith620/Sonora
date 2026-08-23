@@ -32,7 +32,7 @@ Future<void> seedDatabase(SonoraDatabase db) async {
     await db.libraryDao.insertSong(
       SongsCompanion.insert(
         id: song.id,
-        filePath: song.filePath,
+        fileUri: song.fileUri,
         title: song.title,
         artistName: drift.Value(song.artist),
         albumName: drift.Value(song.album),

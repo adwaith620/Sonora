@@ -13,7 +13,7 @@ import 'models/song.dart';
 final List<Song> mockSongs = [
   Song(
     id: 's1',
-    filePath: '/mock/audio/morning_light.flac',
+    fileUri: '/mock/audio/morning_light.flac',
     title: 'Morning Light',
     artist: 'Luna Wave',
     album: 'Daybreak',
@@ -27,7 +27,7 @@ final List<Song> mockSongs = [
   ),
   Song(
     id: 's2',
-    filePath: '/mock/audio/golden_hour.flac',
+    fileUri: '/mock/audio/golden_hour.flac',
     title: 'Golden Hour',
     artist: 'Luna Wave',
     album: 'Daybreak',
@@ -40,7 +40,7 @@ final List<Song> mockSongs = [
   ),
   Song(
     id: 's3',
-    filePath: '/mock/audio/midnight_drive.mp3',
+    fileUri: '/mock/audio/midnight_drive.mp3',
     title: 'Midnight Drive',
     artist: 'Echo Valley',
     album: 'Neon Roads',
@@ -54,7 +54,7 @@ final List<Song> mockSongs = [
   ),
   Song(
     id: 's4',
-    filePath: '/mock/audio/neon_skies.mp3',
+    fileUri: '/mock/audio/neon_skies.mp3',
     title: 'City Lights',
     artist: 'Echo Valley',
     album: 'Neon Roads',
@@ -66,7 +66,7 @@ final List<Song> mockSongs = [
   ),
   Song(
     id: 's5',
-    filePath: '/music/album3/track01.flac',
+    fileUri: '/music/album3/track01.flac',
     title: 'Ocean Breeze',
     artist: 'Coastal Drift',
     album: 'Tidal',
@@ -80,7 +80,7 @@ final List<Song> mockSongs = [
   ),
   Song(
     id: 's6',
-    filePath: '/music/album3/track02.flac',
+    fileUri: '/music/album3/track02.flac',
     title: 'Coral Reef',
     artist: 'Coastal Drift',
     album: 'Tidal',
@@ -92,7 +92,7 @@ final List<Song> mockSongs = [
   ),
   Song(
     id: 's7',
-    filePath: '/music/album4/track01.m4a',
+    fileUri: '/music/album4/track01.m4a',
     title: 'Starfall',
     artist: 'Nova Pulse',
     album: 'Cosmos',
@@ -106,7 +106,7 @@ final List<Song> mockSongs = [
   ),
   Song(
     id: 's8',
-    filePath: '/music/album4/track02.m4a',
+    fileUri: '/music/album4/track02.m4a',
     title: 'Nebula',
     artist: 'Nova Pulse',
     album: 'Cosmos',
@@ -118,7 +118,7 @@ final List<Song> mockSongs = [
   ),
   Song(
     id: 's9',
-    filePath: '/music/album5/track01.ogg',
+    fileUri: '/music/album5/track01.ogg',
     title: 'Forest Walk',
     artist: 'Timber & Moss',
     album: 'Wilderness',
@@ -132,7 +132,7 @@ final List<Song> mockSongs = [
   ),
   Song(
     id: 's10',
-    filePath: '/music/album5/track02.ogg',
+    fileUri: '/music/album5/track02.ogg',
     title: 'River Stone',
     artist: 'Timber & Moss',
     album: 'Wilderness',

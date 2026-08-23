@@ -26,7 +26,7 @@ class Albums extends Table {
 @DataClassName('SongEntity')
 class Songs extends Table {
   TextColumn get id => text()();
-  TextColumn get filePath => text().unique()();
+  TextColumn get fileUri => text().unique()();
   TextColumn get title => text()();
   TextColumn get artistId => text().nullable().references(Artists, #id)();
   TextColumn get albumId => text().nullable().references(Albums, #id)();
@@ -79,7 +79,7 @@ class PlaylistSongs extends Table {
 @DataClassName('LibraryLocationEntity')
 class LibraryLocations extends Table {
   TextColumn get id => text()();
-  TextColumn get folderPath => text().unique()();
+  TextColumn get folderUri => text().unique()();
   BoolColumn get isEnabled => boolean().withDefault(const Constant(true))();
   DateTimeColumn get dateAdded => dateTime().withDefault(currentDateAndTime)();
 

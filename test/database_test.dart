@@ -25,7 +25,7 @@ void main() {
     await database.libraryDao.insertSong(
       SongsCompanion.insert(
         id: songId,
-        filePath: '/music/test.mp3',
+        fileUri: '/music/test.mp3',
         title: 'Test Song',
         durationMillis: const drift.Value(120000),
       ),
@@ -50,7 +50,7 @@ void main() {
     await database.libraryDao.insertSong(
       SongsCompanion.insert(
         id: 's1',
-        filePath: '/music/test1.mp3',
+        fileUri: '/music/test1.mp3',
         title: 'Test Song 1',
         albumId: const drift.Value('a1'),
         albumName: const drift.Value('Test Album'),
@@ -68,13 +68,13 @@ void main() {
 
   test('Playlists can be created and songs added/reordered', () async {
     await database.libraryDao.insertSong(
-      SongsCompanion.insert(id: 's1', filePath: '1.mp3', title: 'S1'),
+      SongsCompanion.insert(id: 's1', fileUri: '1.mp3', title: 'S1'),
     );
     await database.libraryDao.insertSong(
-      SongsCompanion.insert(id: 's2', filePath: '2.mp3', title: 'S2'),
+      SongsCompanion.insert(id: 's2', fileUri: '2.mp3', title: 'S2'),
     );
     await database.libraryDao.insertSong(
-      SongsCompanion.insert(id: 's3', filePath: '3.mp3', title: 'S3'),
+      SongsCompanion.insert(id: 's3', fileUri: '3.mp3', title: 'S3'),
     );
 
     final playlist = await playlistService.createPlaylist('My Playlist');
@@ -101,7 +101,7 @@ void main() {
 
   test('Favorites and recently played work correctly', () async {
     await database.libraryDao.insertSong(
-      SongsCompanion.insert(id: 's1', filePath: '1.mp3', title: 'S1'),
+      SongsCompanion.insert(id: 's1', fileUri: '1.mp3', title: 'S1'),
     );
 
     await libraryService.toggleFavorite('s1');

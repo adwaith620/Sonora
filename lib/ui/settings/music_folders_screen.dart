@@ -1,7 +1,8 @@
+import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:saf/saf.dart';
 
 import '../../data/providers/repository_providers.dart';
 import '../../data/providers/scanner_provider.dart';
@@ -42,15 +43,19 @@ class _MusicFoldersScreenState extends ConsumerState<MusicFoldersScreen> {
               final loc = locations[index];
               return ListTile(
                 leading: const Icon(Icons.folder),
-                title: Text(loc.folderPath),
+                title: Text(loc.folderUri),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete_outline),
                   onPressed: isScanning
                       ? null
                       : () async {
                           await db.libraryDao.removeLibraryLocation(
-                            loc.folderPath,
+                            loc.folderUri,
                           );
+                          if (Platform.isAndroid && loc.folderUri.startsWith('content://')) {
+                            // Release the persisted SAF permission
+                            await Saf().releasePersistedPermission(loc.folderUri);
+                          }
                           setState(() {});
                         },
                 ),
@@ -63,20 +68,19 @@ class _MusicFoldersScreenState extends ConsumerState<MusicFoldersScreen> {
         onPressed: isScanning
             ? null
             : () async {
-                // Request permissions for Android
-                if (Theme.of(context).platform == TargetPlatform.android) {
-                  final status = await Permission.audio.request();
-                  if (status.isDenied) {
-                    // Try manage external storage if API 30+
-                    await Permission.manageExternalStorage.request();
-                  }
+                String? newUri;
+                if (Platform.isAndroid) {
+                  final saf = Saf();
+                  final dir = await saf.pickDirectory(persistablePermission: true);
+                  newUri = dir?.uri;
+                } else {
+                  newUri = await FilePicker.platform.getDirectoryPath(
+                    dialogTitle: 'Select Music Folder',
+                  );
                 }
 
-                final path = await FilePicker.platform.getDirectoryPath(
-                  dialogTitle: 'Select Music Folder',
-                );
-                if (path != null) {
-                  await db.libraryDao.addLibraryLocation(path);
+                if (newUri != null) {
+                  await db.libraryDao.addLibraryLocation(newUri);
                   setState(() {});
                   // Optional: Auto start scan when a new folder is added
                   ref.read(scannerServiceProvider).scanLibrary();

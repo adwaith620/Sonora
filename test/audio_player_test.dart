@@ -8,9 +8,9 @@ void main() {
   group('PlaybackStateNotifier Queue Logic', () {
     late ProviderContainer container;
 
-    const song1 = Song(id: '1', filePath: 'test1.mp3', title: 'Song 1');
-    const song2 = Song(id: '2', filePath: 'test2.mp3', title: 'Song 2');
-    const song3 = Song(id: '3', filePath: 'test3.mp3', title: 'Song 3');
+    const song1 = Song(id: '1', fileUri: 'test1.mp3', title: 'Song 1');
+    const song2 = Song(id: '2', fileUri: 'test2.mp3', title: 'Song 2');
+    const song3 = Song(id: '3', fileUri: 'test3.mp3', title: 'Song 3');
 
     setUp(() {
       container = ProviderContainer();

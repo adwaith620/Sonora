@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart';
 class Song {
   const Song({
     required this.id,
-    required this.filePath,
+    required this.fileUri,
     required this.title,
     this.artist = 'Unknown Artist',
     this.album = 'Unknown Album',
@@ -27,7 +27,7 @@ class Song {
   });
 
   final String id;
-  final String filePath;
+  final String fileUri;
   final String title;
   final String artist;
   final String album;
@@ -49,7 +49,7 @@ class Song {
 
   Song copyWith({
     String? id,
-    String? filePath,
+    String? fileUri,
     String? title,
     String? artist,
     String? album,
@@ -68,7 +68,7 @@ class Song {
   }) {
     return Song(
       id: id ?? this.id,
-      filePath: filePath ?? this.filePath,
+      fileUri: fileUri ?? this.fileUri,
       title: title ?? this.title,
       artist: artist ?? this.artist,
       album: album ?? this.album,

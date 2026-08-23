@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants.dart';
-import '../../core/extensions.dart';
+
 import '../../data/models/artist.dart';
 import '../../data/providers/repository_providers.dart';
 import '../../theme/dimensions.dart';
@@ -19,7 +19,7 @@ class ArtistsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
+    
     final artistsAsync = ref.watch(artistsListProvider);
 
     return Scaffold(

@@ -16,18 +16,18 @@ class LibraryDao extends DatabaseAccessor<SonoraDatabase>
   Future<List<LibraryLocationEntity>> getLibraryLocations() =>
       select(libraryLocations).get();
 
-  Future<void> addLibraryLocation(String folderPath) =>
+  Future<void> addLibraryLocation(String folderUri) =>
       into(libraryLocations).insert(
         LibraryLocationsCompanion.insert(
-          id: folderPath,
-          folderPath: folderPath,
+          id: folderUri,
+          folderUri: folderUri,
           isEnabled: const Value(true),
         ),
         mode: InsertMode.insertOrIgnore,
       );
 
-  Future<void> removeLibraryLocation(String folderPath) =>
-      (delete(libraryLocations)..where((t) => t.id.equals(folderPath))).go();
+  Future<void> removeLibraryLocation(String folderUri) =>
+      (delete(libraryLocations)..where((t) => t.id.equals(folderUri))).go();
 
   // === Songs ===
   Future<List<SongEntity>> getAllSongs() => select(songs).get();
@@ -35,20 +35,20 @@ class LibraryDao extends DatabaseAccessor<SonoraDatabase>
   Stream<List<SongEntity>> watchAllSongs() => select(songs).watch();
 
   Future<List<String>> getAllSongPaths() async {
-    final query = selectOnly(songs)..addColumns([songs.filePath]);
-    return query.map((row) => row.read(songs.filePath)!).get();
+    final query = selectOnly(songs)..addColumns([songs.fileUri]);
+    return query.map((row) => row.read(songs.fileUri)!).get();
   }
 
-  Future<void> removeSongsByPaths(List<String> paths) async {
-    if (paths.isEmpty) return;
-    await (delete(songs)..where((t) => t.filePath.isIn(paths))).go();
+  Future<void> removeSongsByPaths(List<String> uris) async {
+    if (uris.isEmpty) return;
+    await (delete(songs)..where((t) => t.fileUri.isIn(uris))).go();
   }
 
   Future<SongEntity?> getSongById(String id) =>
       (select(songs)..where((t) => t.id.equals(id))).getSingleOrNull();
 
-  Future<SongEntity?> getSongByPath(String path) =>
-      (select(songs)..where((t) => t.filePath.equals(path))).getSingleOrNull();
+  Future<SongEntity?> getSongByPath(String uri) =>
+      (select(songs)..where((t) => t.fileUri.equals(uri))).getSingleOrNull();
 
   Future<void> insertSong(Insertable<SongEntity> song) =>
       into(songs).insert(song, mode: InsertMode.insertOrReplace);

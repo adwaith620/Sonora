@@ -18,7 +18,7 @@ class SonoraDatabase extends _$SonoraDatabase {
   SonoraDatabase([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   // DAOs
   LibraryDao get libraryDao => LibraryDao(this);
@@ -29,7 +29,10 @@ class SonoraDatabase extends _$SonoraDatabase {
       await m.createAll();
     },
     onUpgrade: (Migrator m, int from, int to) async {
-      // Future migrations will go here
+      if (from < 2) {
+        await m.renameColumn(songs, 'file_path', songs.fileUri);
+        await m.renameColumn(libraryLocations, 'folder_path', libraryLocations.folderUri);
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON;');

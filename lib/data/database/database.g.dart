@@ -701,12 +701,12 @@ class $SongsTable extends Songs with TableInfo<$SongsTable, SongEntity> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _filePathMeta = const VerificationMeta(
-    'filePath',
+  static const VerificationMeta _fileUriMeta = const VerificationMeta(
+    'fileUri',
   );
   @override
-  late final GeneratedColumn<String> filePath = GeneratedColumn<String>(
-    'file_path',
+  late final GeneratedColumn<String> fileUri = GeneratedColumn<String>(
+    'file_uri',
     aliasedName,
     false,
     type: DriftSqlType.string,
@@ -902,7 +902,7 @@ class $SongsTable extends Songs with TableInfo<$SongsTable, SongEntity> {
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    filePath,
+    fileUri,
     title,
     artistId,
     albumId,
@@ -937,13 +937,13 @@ class $SongsTable extends Songs with TableInfo<$SongsTable, SongEntity> {
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('file_path')) {
+    if (data.containsKey('file_uri')) {
       context.handle(
-        _filePathMeta,
-        filePath.isAcceptableOrUnknown(data['file_path']!, _filePathMeta),
+        _fileUriMeta,
+        fileUri.isAcceptableOrUnknown(data['file_uri']!, _fileUriMeta),
       );
     } else if (isInserting) {
-      context.missing(_filePathMeta);
+      context.missing(_fileUriMeta);
     }
     if (data.containsKey('title')) {
       context.handle(
@@ -1068,9 +1068,9 @@ class $SongsTable extends Songs with TableInfo<$SongsTable, SongEntity> {
         DriftSqlType.string,
         data['${effectivePrefix}id'],
       )!,
-      filePath: attachedDatabase.typeMapping.read(
+      fileUri: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}file_path'],
+        data['${effectivePrefix}file_uri'],
       )!,
       title: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -1147,7 +1147,7 @@ class $SongsTable extends Songs with TableInfo<$SongsTable, SongEntity> {
 
 class SongEntity extends DataClass implements Insertable<SongEntity> {
   final String id;
-  final String filePath;
+  final String fileUri;
   final String title;
   final String? artistId;
   final String? albumId;
@@ -1166,7 +1166,7 @@ class SongEntity extends DataClass implements Insertable<SongEntity> {
   final bool isFavorite;
   const SongEntity({
     required this.id,
-    required this.filePath,
+    required this.fileUri,
     required this.title,
     this.artistId,
     this.albumId,
@@ -1188,7 +1188,7 @@ class SongEntity extends DataClass implements Insertable<SongEntity> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['file_path'] = Variable<String>(filePath);
+    map['file_uri'] = Variable<String>(fileUri);
     map['title'] = Variable<String>(title);
     if (!nullToAbsent || artistId != null) {
       map['artist_id'] = Variable<String>(artistId);
@@ -1227,7 +1227,7 @@ class SongEntity extends DataClass implements Insertable<SongEntity> {
   SongsCompanion toCompanion(bool nullToAbsent) {
     return SongsCompanion(
       id: Value(id),
-      filePath: Value(filePath),
+      fileUri: Value(fileUri),
       title: Value(title),
       artistId: artistId == null && nullToAbsent
           ? const Value.absent()
@@ -1268,7 +1268,7 @@ class SongEntity extends DataClass implements Insertable<SongEntity> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return SongEntity(
       id: serializer.fromJson<String>(json['id']),
-      filePath: serializer.fromJson<String>(json['filePath']),
+      fileUri: serializer.fromJson<String>(json['fileUri']),
       title: serializer.fromJson<String>(json['title']),
       artistId: serializer.fromJson<String?>(json['artistId']),
       albumId: serializer.fromJson<String?>(json['albumId']),
@@ -1292,7 +1292,7 @@ class SongEntity extends DataClass implements Insertable<SongEntity> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'filePath': serializer.toJson<String>(filePath),
+      'fileUri': serializer.toJson<String>(fileUri),
       'title': serializer.toJson<String>(title),
       'artistId': serializer.toJson<String?>(artistId),
       'albumId': serializer.toJson<String?>(albumId),
@@ -1314,7 +1314,7 @@ class SongEntity extends DataClass implements Insertable<SongEntity> {
 
   SongEntity copyWith({
     String? id,
-    String? filePath,
+    String? fileUri,
     String? title,
     Value<String?> artistId = const Value.absent(),
     Value<String?> albumId = const Value.absent(),
@@ -1333,7 +1333,7 @@ class SongEntity extends DataClass implements Insertable<SongEntity> {
     bool? isFavorite,
   }) => SongEntity(
     id: id ?? this.id,
-    filePath: filePath ?? this.filePath,
+    fileUri: fileUri ?? this.fileUri,
     title: title ?? this.title,
     artistId: artistId.present ? artistId.value : this.artistId,
     albumId: albumId.present ? albumId.value : this.albumId,
@@ -1354,7 +1354,7 @@ class SongEntity extends DataClass implements Insertable<SongEntity> {
   SongEntity copyWithCompanion(SongsCompanion data) {
     return SongEntity(
       id: data.id.present ? data.id.value : this.id,
-      filePath: data.filePath.present ? data.filePath.value : this.filePath,
+      fileUri: data.fileUri.present ? data.fileUri.value : this.fileUri,
       title: data.title.present ? data.title.value : this.title,
       artistId: data.artistId.present ? data.artistId.value : this.artistId,
       albumId: data.albumId.present ? data.albumId.value : this.albumId,
@@ -1392,7 +1392,7 @@ class SongEntity extends DataClass implements Insertable<SongEntity> {
   String toString() {
     return (StringBuffer('SongEntity(')
           ..write('id: $id, ')
-          ..write('filePath: $filePath, ')
+          ..write('fileUri: $fileUri, ')
           ..write('title: $title, ')
           ..write('artistId: $artistId, ')
           ..write('albumId: $albumId, ')
@@ -1416,7 +1416,7 @@ class SongEntity extends DataClass implements Insertable<SongEntity> {
   @override
   int get hashCode => Object.hash(
     id,
-    filePath,
+    fileUri,
     title,
     artistId,
     albumId,
@@ -1439,7 +1439,7 @@ class SongEntity extends DataClass implements Insertable<SongEntity> {
       identical(this, other) ||
       (other is SongEntity &&
           other.id == this.id &&
-          other.filePath == this.filePath &&
+          other.fileUri == this.fileUri &&
           other.title == this.title &&
           other.artistId == this.artistId &&
           other.albumId == this.albumId &&
@@ -1460,7 +1460,7 @@ class SongEntity extends DataClass implements Insertable<SongEntity> {
 
 class SongsCompanion extends UpdateCompanion<SongEntity> {
   final Value<String> id;
-  final Value<String> filePath;
+  final Value<String> fileUri;
   final Value<String> title;
   final Value<String?> artistId;
   final Value<String?> albumId;
@@ -1480,7 +1480,7 @@ class SongsCompanion extends UpdateCompanion<SongEntity> {
   final Value<int> rowid;
   const SongsCompanion({
     this.id = const Value.absent(),
-    this.filePath = const Value.absent(),
+    this.fileUri = const Value.absent(),
     this.title = const Value.absent(),
     this.artistId = const Value.absent(),
     this.albumId = const Value.absent(),
@@ -1501,7 +1501,7 @@ class SongsCompanion extends UpdateCompanion<SongEntity> {
   });
   SongsCompanion.insert({
     required String id,
-    required String filePath,
+    required String fileUri,
     required String title,
     this.artistId = const Value.absent(),
     this.albumId = const Value.absent(),
@@ -1520,11 +1520,11 @@ class SongsCompanion extends UpdateCompanion<SongEntity> {
     this.isFavorite = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
-       filePath = Value(filePath),
+       fileUri = Value(fileUri),
        title = Value(title);
   static Insertable<SongEntity> custom({
     Expression<String>? id,
-    Expression<String>? filePath,
+    Expression<String>? fileUri,
     Expression<String>? title,
     Expression<String>? artistId,
     Expression<String>? albumId,
@@ -1545,7 +1545,7 @@ class SongsCompanion extends UpdateCompanion<SongEntity> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (filePath != null) 'file_path': filePath,
+      if (fileUri != null) 'file_uri': fileUri,
       if (title != null) 'title': title,
       if (artistId != null) 'artist_id': artistId,
       if (albumId != null) 'album_id': albumId,
@@ -1568,7 +1568,7 @@ class SongsCompanion extends UpdateCompanion<SongEntity> {
 
   SongsCompanion copyWith({
     Value<String>? id,
-    Value<String>? filePath,
+    Value<String>? fileUri,
     Value<String>? title,
     Value<String?>? artistId,
     Value<String?>? albumId,
@@ -1589,7 +1589,7 @@ class SongsCompanion extends UpdateCompanion<SongEntity> {
   }) {
     return SongsCompanion(
       id: id ?? this.id,
-      filePath: filePath ?? this.filePath,
+      fileUri: fileUri ?? this.fileUri,
       title: title ?? this.title,
       artistId: artistId ?? this.artistId,
       albumId: albumId ?? this.albumId,
@@ -1616,8 +1616,8 @@ class SongsCompanion extends UpdateCompanion<SongEntity> {
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (filePath.present) {
-      map['file_path'] = Variable<String>(filePath.value);
+    if (fileUri.present) {
+      map['file_uri'] = Variable<String>(fileUri.value);
     }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
@@ -1677,7 +1677,7 @@ class SongsCompanion extends UpdateCompanion<SongEntity> {
   String toString() {
     return (StringBuffer('SongsCompanion(')
           ..write('id: $id, ')
-          ..write('filePath: $filePath, ')
+          ..write('fileUri: $fileUri, ')
           ..write('title: $title, ')
           ..write('artistId: $artistId, ')
           ..write('albumId: $albumId, ')
@@ -2295,12 +2295,12 @@ class $LibraryLocationsTable extends LibraryLocations
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _folderPathMeta = const VerificationMeta(
-    'folderPath',
+  static const VerificationMeta _folderUriMeta = const VerificationMeta(
+    'folderUri',
   );
   @override
-  late final GeneratedColumn<String> folderPath = GeneratedColumn<String>(
-    'folder_path',
+  late final GeneratedColumn<String> folderUri = GeneratedColumn<String>(
+    'folder_uri',
     aliasedName,
     false,
     type: DriftSqlType.string,
@@ -2335,7 +2335,7 @@ class $LibraryLocationsTable extends LibraryLocations
     defaultValue: currentDateAndTime,
   );
   @override
-  List<GeneratedColumn> get $columns => [id, folderPath, isEnabled, dateAdded];
+  List<GeneratedColumn> get $columns => [id, folderUri, isEnabled, dateAdded];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2353,13 +2353,13 @@ class $LibraryLocationsTable extends LibraryLocations
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('folder_path')) {
+    if (data.containsKey('folder_uri')) {
       context.handle(
-        _folderPathMeta,
-        folderPath.isAcceptableOrUnknown(data['folder_path']!, _folderPathMeta),
+        _folderUriMeta,
+        folderUri.isAcceptableOrUnknown(data['folder_uri']!, _folderUriMeta),
       );
     } else if (isInserting) {
-      context.missing(_folderPathMeta);
+      context.missing(_folderUriMeta);
     }
     if (data.containsKey('is_enabled')) {
       context.handle(
@@ -2386,9 +2386,9 @@ class $LibraryLocationsTable extends LibraryLocations
         DriftSqlType.string,
         data['${effectivePrefix}id'],
       )!,
-      folderPath: attachedDatabase.typeMapping.read(
+      folderUri: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}folder_path'],
+        data['${effectivePrefix}folder_uri'],
       )!,
       isEnabled: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
@@ -2410,12 +2410,12 @@ class $LibraryLocationsTable extends LibraryLocations
 class LibraryLocationEntity extends DataClass
     implements Insertable<LibraryLocationEntity> {
   final String id;
-  final String folderPath;
+  final String folderUri;
   final bool isEnabled;
   final DateTime dateAdded;
   const LibraryLocationEntity({
     required this.id,
-    required this.folderPath,
+    required this.folderUri,
     required this.isEnabled,
     required this.dateAdded,
   });
@@ -2423,7 +2423,7 @@ class LibraryLocationEntity extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['folder_path'] = Variable<String>(folderPath);
+    map['folder_uri'] = Variable<String>(folderUri);
     map['is_enabled'] = Variable<bool>(isEnabled);
     map['date_added'] = Variable<DateTime>(dateAdded);
     return map;
@@ -2432,7 +2432,7 @@ class LibraryLocationEntity extends DataClass
   LibraryLocationsCompanion toCompanion(bool nullToAbsent) {
     return LibraryLocationsCompanion(
       id: Value(id),
-      folderPath: Value(folderPath),
+      folderUri: Value(folderUri),
       isEnabled: Value(isEnabled),
       dateAdded: Value(dateAdded),
     );
@@ -2445,7 +2445,7 @@ class LibraryLocationEntity extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LibraryLocationEntity(
       id: serializer.fromJson<String>(json['id']),
-      folderPath: serializer.fromJson<String>(json['folderPath']),
+      folderUri: serializer.fromJson<String>(json['folderUri']),
       isEnabled: serializer.fromJson<bool>(json['isEnabled']),
       dateAdded: serializer.fromJson<DateTime>(json['dateAdded']),
     );
@@ -2455,7 +2455,7 @@ class LibraryLocationEntity extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'folderPath': serializer.toJson<String>(folderPath),
+      'folderUri': serializer.toJson<String>(folderUri),
       'isEnabled': serializer.toJson<bool>(isEnabled),
       'dateAdded': serializer.toJson<DateTime>(dateAdded),
     };
@@ -2463,21 +2463,19 @@ class LibraryLocationEntity extends DataClass
 
   LibraryLocationEntity copyWith({
     String? id,
-    String? folderPath,
+    String? folderUri,
     bool? isEnabled,
     DateTime? dateAdded,
   }) => LibraryLocationEntity(
     id: id ?? this.id,
-    folderPath: folderPath ?? this.folderPath,
+    folderUri: folderUri ?? this.folderUri,
     isEnabled: isEnabled ?? this.isEnabled,
     dateAdded: dateAdded ?? this.dateAdded,
   );
   LibraryLocationEntity copyWithCompanion(LibraryLocationsCompanion data) {
     return LibraryLocationEntity(
       id: data.id.present ? data.id.value : this.id,
-      folderPath: data.folderPath.present
-          ? data.folderPath.value
-          : this.folderPath,
+      folderUri: data.folderUri.present ? data.folderUri.value : this.folderUri,
       isEnabled: data.isEnabled.present ? data.isEnabled.value : this.isEnabled,
       dateAdded: data.dateAdded.present ? data.dateAdded.value : this.dateAdded,
     );
@@ -2487,7 +2485,7 @@ class LibraryLocationEntity extends DataClass
   String toString() {
     return (StringBuffer('LibraryLocationEntity(')
           ..write('id: $id, ')
-          ..write('folderPath: $folderPath, ')
+          ..write('folderUri: $folderUri, ')
           ..write('isEnabled: $isEnabled, ')
           ..write('dateAdded: $dateAdded')
           ..write(')'))
@@ -2495,48 +2493,48 @@ class LibraryLocationEntity extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, folderPath, isEnabled, dateAdded);
+  int get hashCode => Object.hash(id, folderUri, isEnabled, dateAdded);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is LibraryLocationEntity &&
           other.id == this.id &&
-          other.folderPath == this.folderPath &&
+          other.folderUri == this.folderUri &&
           other.isEnabled == this.isEnabled &&
           other.dateAdded == this.dateAdded);
 }
 
 class LibraryLocationsCompanion extends UpdateCompanion<LibraryLocationEntity> {
   final Value<String> id;
-  final Value<String> folderPath;
+  final Value<String> folderUri;
   final Value<bool> isEnabled;
   final Value<DateTime> dateAdded;
   final Value<int> rowid;
   const LibraryLocationsCompanion({
     this.id = const Value.absent(),
-    this.folderPath = const Value.absent(),
+    this.folderUri = const Value.absent(),
     this.isEnabled = const Value.absent(),
     this.dateAdded = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   LibraryLocationsCompanion.insert({
     required String id,
-    required String folderPath,
+    required String folderUri,
     this.isEnabled = const Value.absent(),
     this.dateAdded = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
-       folderPath = Value(folderPath);
+       folderUri = Value(folderUri);
   static Insertable<LibraryLocationEntity> custom({
     Expression<String>? id,
-    Expression<String>? folderPath,
+    Expression<String>? folderUri,
     Expression<bool>? isEnabled,
     Expression<DateTime>? dateAdded,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (folderPath != null) 'folder_path': folderPath,
+      if (folderUri != null) 'folder_uri': folderUri,
       if (isEnabled != null) 'is_enabled': isEnabled,
       if (dateAdded != null) 'date_added': dateAdded,
       if (rowid != null) 'rowid': rowid,
@@ -2545,14 +2543,14 @@ class LibraryLocationsCompanion extends UpdateCompanion<LibraryLocationEntity> {
 
   LibraryLocationsCompanion copyWith({
     Value<String>? id,
-    Value<String>? folderPath,
+    Value<String>? folderUri,
     Value<bool>? isEnabled,
     Value<DateTime>? dateAdded,
     Value<int>? rowid,
   }) {
     return LibraryLocationsCompanion(
       id: id ?? this.id,
-      folderPath: folderPath ?? this.folderPath,
+      folderUri: folderUri ?? this.folderUri,
       isEnabled: isEnabled ?? this.isEnabled,
       dateAdded: dateAdded ?? this.dateAdded,
       rowid: rowid ?? this.rowid,
@@ -2565,8 +2563,8 @@ class LibraryLocationsCompanion extends UpdateCompanion<LibraryLocationEntity> {
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (folderPath.present) {
-      map['folder_path'] = Variable<String>(folderPath.value);
+    if (folderUri.present) {
+      map['folder_uri'] = Variable<String>(folderUri.value);
     }
     if (isEnabled.present) {
       map['is_enabled'] = Variable<bool>(isEnabled.value);
@@ -2584,7 +2582,7 @@ class LibraryLocationsCompanion extends UpdateCompanion<LibraryLocationEntity> {
   String toString() {
     return (StringBuffer('LibraryLocationsCompanion(')
           ..write('id: $id, ')
-          ..write('folderPath: $folderPath, ')
+          ..write('folderUri: $folderUri, ')
           ..write('isEnabled: $isEnabled, ')
           ..write('dateAdded: $dateAdded, ')
           ..write('rowid: $rowid')
@@ -3406,7 +3404,7 @@ typedef $$AlbumsTableProcessedTableManager =
     >;
 typedef $$SongsTableCreateCompanionBuilder = SongsCompanion Function({
   required String id,
-  required String filePath,
+  required String fileUri,
   required String title,
   Value<String?> artistId,
   Value<String?> albumId,
@@ -3427,7 +3425,7 @@ typedef $$SongsTableCreateCompanionBuilder = SongsCompanion Function({
 });
 typedef $$SongsTableUpdateCompanionBuilder = SongsCompanion Function({
   Value<String> id,
-  Value<String> filePath,
+  Value<String> fileUri,
   Value<String> title,
   Value<String?> artistId,
   Value<String?> albumId,
@@ -3518,8 +3516,8 @@ class $$SongsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get filePath => $composableBuilder(
-    column: $table.filePath,
+  ColumnFilters<String> get fileUri => $composableBuilder(
+    column: $table.fileUri,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3679,8 +3677,8 @@ class $$SongsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get filePath => $composableBuilder(
-    column: $table.filePath,
+  ColumnOrderings<String> get fileUri => $composableBuilder(
+    column: $table.fileUri,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -3813,8 +3811,8 @@ class $$SongsTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get filePath =>
-      $composableBuilder(column: $table.filePath, builder: (column) => column);
+  GeneratedColumn<String> get fileUri =>
+      $composableBuilder(column: $table.fileUri, builder: (column) => column);
 
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
@@ -3977,7 +3975,7 @@ class $$SongsTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
-                Value<String> filePath = const Value.absent(),
+                Value<String> fileUri = const Value.absent(),
                 Value<String> title = const Value.absent(),
                 Value<String?> artistId = const Value.absent(),
                 Value<String?> albumId = const Value.absent(),
@@ -3997,7 +3995,7 @@ class $$SongsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => SongsCompanion(
                 id: id,
-                filePath: filePath,
+                fileUri: fileUri,
                 title: title,
                 artistId: artistId,
                 albumId: albumId,
@@ -4019,7 +4017,7 @@ class $$SongsTableTableManager
           createCompanionCallback:
               ({
                 required String id,
-                required String filePath,
+                required String fileUri,
                 required String title,
                 Value<String?> artistId = const Value.absent(),
                 Value<String?> albumId = const Value.absent(),
@@ -4039,7 +4037,7 @@ class $$SongsTableTableManager
                 Value<int> rowid = const Value.absent(),
               }) => SongsCompanion.insert(
                 id: id,
-                filePath: filePath,
+                fileUri: fileUri,
                 title: title,
                 artistId: artistId,
                 albumId: albumId,
@@ -4818,7 +4816,7 @@ typedef $$PlaylistSongsTableProcessedTableManager =
 typedef $$LibraryLocationsTableCreateCompanionBuilder =
     LibraryLocationsCompanion Function({
       required String id,
-      required String folderPath,
+      required String folderUri,
       Value<bool> isEnabled,
       Value<DateTime> dateAdded,
       Value<int> rowid,
@@ -4826,7 +4824,7 @@ typedef $$LibraryLocationsTableCreateCompanionBuilder =
 typedef $$LibraryLocationsTableUpdateCompanionBuilder =
     LibraryLocationsCompanion Function({
       Value<String> id,
-      Value<String> folderPath,
+      Value<String> folderUri,
       Value<bool> isEnabled,
       Value<DateTime> dateAdded,
       Value<int> rowid,
@@ -4846,8 +4844,8 @@ class $$LibraryLocationsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get folderPath => $composableBuilder(
-    column: $table.folderPath,
+  ColumnFilters<String> get folderUri => $composableBuilder(
+    column: $table.folderUri,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4876,8 +4874,8 @@ class $$LibraryLocationsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get folderPath => $composableBuilder(
-    column: $table.folderPath,
+  ColumnOrderings<String> get folderUri => $composableBuilder(
+    column: $table.folderUri,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4904,10 +4902,8 @@ class $$LibraryLocationsTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get folderPath => $composableBuilder(
-    column: $table.folderPath,
-    builder: (column) => column,
-  );
+  GeneratedColumn<String> get folderUri =>
+      $composableBuilder(column: $table.folderUri, builder: (column) => column);
 
   GeneratedColumn<bool> get isEnabled =>
       $composableBuilder(column: $table.isEnabled, builder: (column) => column);
@@ -4954,13 +4950,13 @@ class $$LibraryLocationsTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
-                Value<String> folderPath = const Value.absent(),
+                Value<String> folderUri = const Value.absent(),
                 Value<bool> isEnabled = const Value.absent(),
                 Value<DateTime> dateAdded = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LibraryLocationsCompanion(
                 id: id,
-                folderPath: folderPath,
+                folderUri: folderUri,
                 isEnabled: isEnabled,
                 dateAdded: dateAdded,
                 rowid: rowid,
@@ -4968,13 +4964,13 @@ class $$LibraryLocationsTableTableManager
           createCompanionCallback:
               ({
                 required String id,
-                required String folderPath,
+                required String folderUri,
                 Value<bool> isEnabled = const Value.absent(),
                 Value<DateTime> dateAdded = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LibraryLocationsCompanion.insert(
                 id: id,
-                folderPath: folderPath,
+                folderUri: folderUri,
                 isEnabled: isEnabled,
                 dateAdded: dateAdded,
                 rowid: rowid,
