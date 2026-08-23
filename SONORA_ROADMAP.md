@@ -12,14 +12,14 @@ This document tracks the progress of the Sonora project milestones.
 - [x] Main UI Screens (Home, Songs, Albums, Artists, Playlists, Settings)
 - [x] Player UI (Mini Player, Now Playing modal)
 
-## Phase 2: Local Database + Models (🔜 Next)
-- [ ] Setup Drift SQLite database
-- [ ] Define normalized database tables (Songs, Albums, Artists, Playlists)
-- [ ] Implement DAO layer
-- [ ] Create data migration strategy
-- [ ] Connect repository pattern to UI state
+## Phase 2: Local Database + Models (✅ Complete)
+- [x] Setup Drift SQLite database
+- [x] Define normalized database tables (Songs, Albums, Artists, Playlists)
+- [x] Implement DAO layer
+- [x] Create data migration strategy
+- [x] Connect repository pattern to UI state
 
-## Phase 3: Library Scanner + Metadata
+## Phase 3: Library Scanner + Metadata (🔜 Next)
 - [ ] Platform-specific local storage permissions
 - [ ] Fast filesystem traversal
 - [ ] Metadata extraction (ID3, FLAC, etc.) using `metadata_god`
