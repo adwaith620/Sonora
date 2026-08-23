@@ -29,7 +29,7 @@ dependencies:
   # Utilities
   path_provider: ^2.1.5
   collection: ^1.19.1
-  drift: ^2.20.0
+  drift: ^2.34.0
   sqlite3_flutter_libs: ^0.6.0+eol
   path: ^1.9.1
   uuid: ^4.6.0
@@ -40,7 +40,7 @@ dev_dependencies:
   flutter_lints: ^5.0.0
 
   build_runner: ^2.4.14
-  drift_dev: ^2.20.0
+  drift_dev: ^2.34.0
 
 
 

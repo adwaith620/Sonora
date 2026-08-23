@@ -13,7 +13,6 @@ extension SongEntityMapper on SongEntity {
       title: title,
       artist: artistName,
       album: albumName,
-      albumArtist: albumArtist,
       genre: genre,
       year: year,
       trackNumber: trackNumber,
@@ -33,7 +32,7 @@ extension AlbumEntityMapper on AlbumEntity {
   Album toDomain() {
     return Album(
       id: id,
-      title: title,
+      name: title,
       artist: albumArtist ?? 'Unknown Artist',
       year: year,
       artworkPath: artworkPath,
@@ -43,7 +42,11 @@ extension AlbumEntityMapper on AlbumEntity {
 
 extension ArtistEntityMapper on ArtistEntity {
   Artist toDomain() {
-    return Artist(id: id, name: name, artworkPath: artworkPath);
+    return Artist(
+      id: id,
+      name: name,
+      artworkPath: artworkPath,
+    );
   }
 }
 
@@ -54,14 +57,13 @@ class DriftLibraryService implements LibraryService {
   final SonoraDatabase _db;
 
   @override
-  Future<List<Song>> getAllSongs({
-    SongSortField sortBy = SongSortField.title,
-  }) async {
+  Future<List<Song>> getAllSongs({bool ascending = true, SongSortField? sortBy}) async {
     final entities = await _db.libraryDao.getAllSongs();
     final domainSongs = entities.map((e) => e.toDomain()).toList();
+    final sort = sortBy ?? SongSortField.title;
 
     // Sort
-    switch (sortBy) {
+    switch (sort) {
       case SongSortField.title:
         domainSongs.sort((a, b) => a.title.compareTo(b.title));
         break;
@@ -200,4 +202,22 @@ class DriftLibraryService implements LibraryService {
   Future<void> dispose() async {
     // Nothing specific to dispose here, DB is handled externally
   }
+
+  @override
+  Stream<ScanProgress> get scanProgressStream => const Stream.empty();
+
+  @override
+  Future<void> addFolder(String path) async {}
+
+  @override
+  Future<void> removeFolder(String path) async {}
+
+  @override
+  Future<List<String>> getFolders() async => [];
+
+  @override
+  Future<void> scanLibrary() async {}
+
+  @override
+  Future<void> rescanLibrary() async {}
 }

@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' as drift;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sonora/data/database/database.dart';
@@ -26,14 +26,12 @@ void main() {
 
   test('Songs can be inserted and retrieved', () async {
     final songId = 's1';
-    await database.libraryDao.insertSong(
-      SongEntity(
-        id: songId,
-        filePath: '/music/test.mp3',
-        title: 'Test Song',
-        durationMillis: 120000,
-      ),
-    );
+    await database.libraryDao.insertSong(SongsCompanion.insert(
+      id: songId,
+      filePath: '/music/test.mp3',
+      title: 'Test Song',
+      durationMillis: const drift.Value(120000),
+    ));
 
     final songs = await libraryService.getAllSongs();
     expect(songs.length, 1);
@@ -43,23 +41,23 @@ void main() {
   });
 
   test('Albums can be inserted and songs retrieved for album', () async {
-    await database.libraryDao.insertAlbum(
-      AlbumEntity(id: 'a1', title: 'Test Album', albumArtist: 'Test Artist'),
-    );
-
-    await database.libraryDao.insertSong(
-      SongEntity(
-        id: 's1',
-        filePath: '/music/test1.mp3',
-        title: 'Test Song 1',
-        albumId: 'a1',
-        albumName: 'Test Album',
-      ),
-    );
+    await database.libraryDao.insertAlbum(AlbumsCompanion.insert(
+      id: 'a1',
+      title: 'Test Album',
+      albumArtist: const drift.Value('Test Artist'),
+    ));
+    
+    await database.libraryDao.insertSong(SongsCompanion.insert(
+      id: 's1',
+      filePath: '/music/test1.mp3',
+      title: 'Test Song 1',
+      albumId: const drift.Value('a1'),
+      albumName: const drift.Value('Test Album'),
+    ));
 
     final albums = await libraryService.getAllAlbums();
     expect(albums.length, 1);
-    expect(albums.first.title, 'Test Album');
+    expect(albums.first.name, 'Test Album');
 
     final albumSongs = await libraryService.getSongsForAlbum('a1');
     expect(albumSongs.length, 1);
@@ -67,15 +65,9 @@ void main() {
   });
 
   test('Playlists can be created and songs added/reordered', () async {
-    await database.libraryDao.insertSong(
-      SongEntity(id: 's1', filePath: '1.mp3', title: 'S1'),
-    );
-    await database.libraryDao.insertSong(
-      SongEntity(id: 's2', filePath: '2.mp3', title: 'S2'),
-    );
-    await database.libraryDao.insertSong(
-      SongEntity(id: 's3', filePath: '3.mp3', title: 'S3'),
-    );
+    await database.libraryDao.insertSong(SongsCompanion.insert(id: 's1', filePath: '1.mp3', title: 'S1'));
+    await database.libraryDao.insertSong(SongsCompanion.insert(id: 's2', filePath: '2.mp3', title: 'S2'));
+    await database.libraryDao.insertSong(SongsCompanion.insert(id: 's3', filePath: '3.mp3', title: 'S3'));
 
     final playlist = await playlistService.createPlaylist('My Playlist');
     expect(playlist.name, 'My Playlist');
@@ -100,18 +92,16 @@ void main() {
   });
 
   test('Favorites and recently played work correctly', () async {
-    await database.libraryDao.insertSong(
-      SongEntity(id: 's1', filePath: '1.mp3', title: 'S1'),
-    );
-
+    await database.libraryDao.insertSong(SongsCompanion.insert(id: 's1', filePath: '1.mp3', title: 'S1'));
+    
     await libraryService.toggleFavorite('s1');
-
+    
     final favs = await libraryService.getFavorites();
     expect(favs.length, 1);
     expect(favs.first.isFavorite, true);
 
     await libraryService.recordPlay('s1');
-
+    
     final recents = await libraryService.getRecentlyPlayed();
     expect(recents.length, 1);
     expect(recents.first.playCount, 1);
