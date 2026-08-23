@@ -34,5 +34,16 @@ Sonora follows a layered architecture to ensure separation of concerns, testabil
 - `PlaylistSongs` acts as a join table with a `position` column.
 
 ## Future Plans (Phase 3 & 4)
-- **File Scanner**: A local isolate-based scanner to traverse `LibraryLocations` and extract ID3/FLAC metadata via `metadata_god`.
-- **Audio Engine**: `media_kit` implementations for `AudioPlayerService`.
+- **Phase 3: Real Audio Engine**
+- **MediaKitAudioService**: Wraps `media_kit` native player. Plays real files or remote URLs.
+- **SonoraAudioHandler**: Extends `audio_service` `BaseAudioHandler` to broadcast playback state to the Android OS.
+- **PlaybackStateNotifier**: A pure Dart Riverpod Notifier that controls queue manipulation (shuffle, repeat, add, remove). It is easily testable without a UI or native plugins.
+
+- **Phase 4: Local Library Scanner & Metadata**
+- **File Scanner**: `LocalScannerService` recursively scans directories configured in the `LibraryLocations` table using `dart:io`.
+- **Metadata Extraction**: Uses the pure-Dart `audio_metadata_reader` package to parse ID3, Vorbis, and MP4 tags without FFI or native plugin complications. Falls back to filename if tags are missing.
+- **Artwork Cache**: Embedded artwork (e.g. ID3 APIC frames) is extracted and cached in the application's support directory. A SHA-256 hash of the image bytes prevents duplicate image files.
+- **Incremental Sync**: The scanner compares file paths and file sizes before extracting tags to avoid unnecessary read overhead on subsequent rescans.
+- **Missing Files**: Tracks discovered files during the scan and deletes database records for files that are no longer present on the filesystem.
+- **Concurrency & Yielding**: Progress updates are yielded to Riverpod periodically, ensuring the main Flutter isolate remains responsive.
+- **Permissions**: Android builds request `MANAGE_EXTERNAL_STORAGE` and `READ_MEDIA_AUDIO` to correctly access the local file system using the SAF folder picker (`file_picker`). Windows builds rely on native filesystem permissions without explicit requests.

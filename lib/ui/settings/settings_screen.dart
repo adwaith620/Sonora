@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants.dart';
+import '../../data/providers/scanner_provider.dart';
+import '../../services/scanner_service.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/dimensions.dart';
 import '../../theme/theme_provider.dart';
+import 'music_folders_screen.dart';
 
 /// Settings screen.
 class SettingsScreen extends ConsumerWidget {
@@ -85,15 +88,39 @@ class SettingsScreen extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.folder_outlined),
             title: const Text('Music Folders'),
-            subtitle: const Text('No folders configured'),
             trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MusicFoldersScreen()),
+              );
+            },
           ),
-          ListTile(
-            leading: const Icon(Icons.refresh_rounded),
-            title: const Text('Rescan Library'),
-            subtitle: const Text('Scan for new and changed files'),
-            onTap: () {},
+          Consumer(
+            builder: (context, ref, _) {
+              final scanState = ref.watch(scannerStateProvider);
+              final isScanning =
+                  scanState.value?.status == ScannerStatus.scanning;
+
+              return ListTile(
+                leading: isScanning
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.refresh_rounded),
+                title: Text(isScanning ? 'Scanning...' : 'Rescan Library'),
+                subtitle: isScanning
+                    ? Text(
+                        'Found ${scanState.value?.filesDiscovered ?? 0} files...',
+                      )
+                    : const Text('Scan for new and changed files'),
+                onTap: isScanning
+                    ? () => ref.read(scannerServiceProvider).cancelScan()
+                    : () => ref.read(scannerServiceProvider).scanLibrary(),
+              );
+            },
           ),
 
           const Divider(),

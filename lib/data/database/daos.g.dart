@@ -9,6 +9,8 @@ mixin _$LibraryDaoMixin on DatabaseAccessor<SonoraDatabase> {
   $SongsTable get songs => attachedDatabase.songs;
   $PlaylistsTable get playlists => attachedDatabase.playlists;
   $PlaylistSongsTable get playlistSongs => attachedDatabase.playlistSongs;
+  $LibraryLocationsTable get libraryLocations =>
+      attachedDatabase.libraryLocations;
   LibraryDaoManager get managers => LibraryDaoManager(this);
 }
 
@@ -25,4 +27,9 @@ class LibraryDaoManager {
       $$PlaylistsTableTableManager(_db.attachedDatabase, _db.playlists);
   $$PlaylistSongsTableTableManager get playlistSongs =>
       $$PlaylistSongsTableTableManager(_db.attachedDatabase, _db.playlistSongs);
+  $$LibraryLocationsTableTableManager get libraryLocations =>
+      $$LibraryLocationsTableTableManager(
+        _db.attachedDatabase,
+        _db.libraryLocations,
+      );
 }

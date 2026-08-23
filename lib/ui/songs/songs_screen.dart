@@ -1,13 +1,19 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/extensions.dart';
-import '../../data/mock_data.dart';
+import '../../core/constants.dart';
+import '../../data/models/song.dart';
 import '../../data/providers/audio_provider.dart';
+import '../../data/providers/repository_providers.dart';
 import '../../theme/dimensions.dart';
-import '../common/song_list_tile.dart';
 
-/// Songs screen — displays all songs in the library.
+final songsListProvider = FutureProvider<List<Song>>((ref) async {
+  final db = ref.watch(libraryRepositoryProvider);
+  return db.getAllSongs();
+});
+
 class SongsScreen extends ConsumerWidget {
   const SongsScreen({super.key});
 
@@ -15,62 +21,112 @@ class SongsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final audioService = ref.read(audioPlayerServiceProvider);
+    final songsAsync = ref.watch(songsListProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Songs'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.sort_rounded),
-            onPressed: () {},
-            tooltip: 'Sort',
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar.large(
+            title: const Text('Songs'),
+            actions: [
+              IconButton(icon: const Icon(Icons.search), onPressed: () {}),
+            ],
           ),
-          IconButton(icon: const Icon(Icons.search_rounded), onPressed: () {}),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Stats bar
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: Spacing.lg,
-              vertical: Spacing.sm,
+
+          songsAsync.when(
+            loading: () => const SliverFillRemaining(
+              child: Center(child: CircularProgressIndicator()),
             ),
-            child: Row(
-              children: [
-                Text(
-                  mockSongs.length.plural('song'),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+            error: (err, stack) =>
+                SliverFillRemaining(child: Center(child: Text('Error: $err'))),
+            data: (songs) {
+              if (songs.isEmpty) {
+                return const SliverFillRemaining(
+                  child: Center(
+                    child: Text('No music found. Add a folder in Settings.'),
                   ),
-                ),
-                const Spacer(),
-                FilledButton.tonalIcon(
-                  onPressed: () {
-                    final shuffled = List.of(mockSongs)..shuffle();
-                    audioService.playQueue(shuffled);
-                    audioService
-                        .toggleShuffle(); // Sync shuffle state internally
-                  },
-                  icon: const Icon(Icons.shuffle_rounded, size: 18),
-                  label: const Text('Shuffle'),
-                ),
-              ],
-            ),
-          ),
-          // Song list
-          Expanded(
-            child: ListView.builder(
-              itemCount: mockSongs.length,
-              itemBuilder: (context, index) {
-                return SongListTile(
-                  song: mockSongs[index],
-                  onTap: () {
-                    audioService.playQueue(mockSongs, startIndex: index);
-                  },
                 );
-              },
-            ),
+              }
+
+              return SliverPadding(
+                padding: const EdgeInsets.only(
+                  bottom: kMiniPlayerHeight + Spacing.md,
+                ),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    if (index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: Spacing.md,
+                          vertical: Spacing.sm,
+                        ),
+                        child: Row(
+                          children: [
+                            FilledButton.icon(
+                              onPressed: () {
+                                audioService.playQueue(songs);
+                              },
+                              icon: const Icon(Icons.play_arrow_rounded),
+                              label: const Text('Play All'),
+                            ),
+                            const SizedBox(width: Spacing.sm),
+                            FilledButton.tonalIcon(
+                              onPressed: () {
+                                audioService.playQueue(songs);
+                                audioService.toggleShuffle();
+                              },
+                              icon: const Icon(Icons.shuffle_rounded),
+                              label: const Text('Shuffle'),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    final song = songs[index - 1];
+                    return ListTile(
+                      leading: Container(
+                        width: kArtworkThumbnailSize,
+                        height: kArtworkThumbnailSize,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(Spacing.xs),
+                          image: song.artworkPath != null
+                              ? DecorationImage(
+                                  image: FileImage(File(song.artworkPath!)),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: song.artworkPath == null
+                            ? Icon(
+                                Icons.music_note_rounded,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              )
+                            : null,
+                      ),
+                      title: Text(
+                        song.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Text(
+                        song.artist,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.more_vert_rounded),
+                        onPressed: () {},
+                      ),
+                      onTap: () {
+                        audioService.playQueue(songs, startIndex: index - 1);
+                      },
+                    );
+                  }, childCount: songs.length + 1),
+                ),
+              );
+            },
           ),
         ],
       ),

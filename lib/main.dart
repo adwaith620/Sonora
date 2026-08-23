@@ -39,11 +39,7 @@ void main() async {
 
   runApp(
     ProviderScope(
-      overrides: [
-        audioHandlerProvider.overrideWithValue(
-          audioHandler,
-        ),
-      ],
+      overrides: [audioHandlerProvider.overrideWithValue(audioHandler)],
       child: const SonoraApp(),
     ),
   );

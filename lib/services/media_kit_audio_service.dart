@@ -31,7 +31,9 @@ class MediaKitAudioService implements AudioPlayerService {
     });
 
     _player.stream.buffer.listen((buffer) {
-      final newState = _notifier.currentState.copyWith(bufferedPosition: buffer);
+      final newState = _notifier.currentState.copyWith(
+        bufferedPosition: buffer,
+      );
       _notifier.updateState(newState);
       _handler?.broadcastState(newState);
     });
@@ -125,7 +127,10 @@ class MediaKitAudioService implements AudioPlayerService {
   Future<void> stop() async {
     await _player.stop();
     _notifier.updateState(
-      _notifier.currentState.copyWith(isPlaying: false, position: Duration.zero),
+      _notifier.currentState.copyWith(
+        isPlaying: false,
+        position: Duration.zero,
+      ),
     );
   }
 

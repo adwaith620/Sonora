@@ -40,12 +40,15 @@ This document tracks the progress of the Sonora project milestones.
   - Create pure Dart tests for queue manipulation logic.
   - Verify Android APK build.
 
-## Phase 4: Audio Playback Engine
-- [ ] Integrate `media_kit` for cross-platform audio
-- [ ] Implement `AudioPlayerService`
-- [ ] Playback queue management
-- [ ] Shuffle and repeat logic
-- [ ] Gapless playback preparation
+### Phase 4: Local Library Scanner 🟢 (COMPLETED)
+- [x] Configure Android scoped storage / file picker permissions
+- [x] Implement music folder selection UI
+- [x] Create recursive file scanner for supported audio formats
+- [x] Extract metadata (pure Dart `audio_metadata_reader`)
+- [x] Handle artwork extraction and cache deduplication
+- [x] Implement incremental upsert into Drift Database
+- [x] Provide Riverpod streams for scan progress/state
+- [x] Connect database output to Library UI screens
 
 ## Phase 5: Player UI Integration
 - [ ] Connect Mini Player to live playback state
