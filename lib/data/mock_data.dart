@@ -13,7 +13,7 @@ import 'models/playlist.dart';
 final List<Song> mockSongs = [
   Song(
     id: 's1',
-    filePath: '/music/album1/track01.flac',
+    filePath: 'C:/Windows/Media/tada.wav',
     title: 'Morning Light',
     artist: 'Luna Wave',
     album: 'Daybreak',
@@ -27,7 +27,7 @@ final List<Song> mockSongs = [
   ),
   Song(
     id: 's2',
-    filePath: '/music/album1/track02.flac',
+    filePath: 'C:/Windows/Media/Alarm01.wav',
     title: 'Golden Hour',
     artist: 'Luna Wave',
     album: 'Daybreak',
@@ -40,7 +40,7 @@ final List<Song> mockSongs = [
   ),
   Song(
     id: 's3',
-    filePath: '/music/album2/track01.mp3',
+    filePath: 'C:/Windows/Media/Ring01.wav',
     title: 'Midnight Drive',
     artist: 'Echo Valley',
     album: 'Neon Roads',
@@ -54,7 +54,7 @@ final List<Song> mockSongs = [
   ),
   Song(
     id: 's4',
-    filePath: '/music/album2/track02.mp3',
+    filePath: 'C:/Windows/Media/notify.wav',
     title: 'City Lights',
     artist: 'Echo Valley',
     album: 'Neon Roads',

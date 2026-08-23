@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/mock_data.dart';
+import '../../data/providers/audio_provider.dart';
 import '../../theme/dimensions.dart';
 import '../common/artwork_widget.dart';
 import 'now_playing_screen.dart';
@@ -10,22 +11,19 @@ import 'now_playing_screen.dart';
 /// Displays a floating pill-shaped bar with artwork, song info,
 /// play/pause and next controls, and a thin progress indicator.
 /// Tapping opens the full Now Playing screen.
-class MiniPlayer extends StatefulWidget {
+class MiniPlayer extends ConsumerWidget {
   const MiniPlayer({super.key});
 
   @override
-  State<MiniPlayer> createState() => _MiniPlayerState();
-}
-
-class _MiniPlayerState extends State<MiniPlayer> {
-  // Mock state for Phase 1
-  bool _isPlaying = true;
-  final double _progress = 0.35;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final song = mockCurrentSong;
+    final playbackState = ref.watch(playbackStateProvider).valueOrNull;
+    final song = playbackState?.currentSong;
+    final audio = ref.read(audioPlayerServiceProvider);
+
+    if (song == null) {
+      return const SizedBox.shrink();
+    }
 
     return GestureDetector(
       onTap: () => _openNowPlaying(context),
@@ -95,17 +93,17 @@ class _MiniPlayerState extends State<MiniPlayer> {
                   // Play/Pause
                   IconButton(
                     icon: Icon(
-                      _isPlaying
+                      playbackState!.isPlaying
                           ? Icons.pause_rounded
                           : Icons.play_arrow_rounded,
                     ),
-                    onPressed: () => setState(() => _isPlaying = !_isPlaying),
+                    onPressed: () => audio.togglePlayPause(),
                   ),
 
                   // Next
                   IconButton(
                     icon: const Icon(Icons.skip_next_rounded),
-                    onPressed: () {},
+                    onPressed: () => audio.next(),
                     visualDensity: VisualDensity.compact,
                   ),
                 ],
@@ -114,7 +112,7 @@ class _MiniPlayerState extends State<MiniPlayer> {
 
             // Progress bar
             LinearProgressIndicator(
-              value: _progress,
+              value: playbackState.progress,
               minHeight: 2,
               backgroundColor: Colors.transparent,
               valueColor: AlwaysStoppedAnimation<Color>(

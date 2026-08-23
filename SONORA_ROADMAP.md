@@ -19,12 +19,26 @@ This document tracks the progress of the Sonora project milestones.
 - [x] Create data migration strategy
 - [x] Connect repository pattern to UI state
 
-## Phase 3: Library Scanner + Metadata (🔜 Next)
-- [ ] Platform-specific local storage permissions
-- [ ] Fast filesystem traversal
-- [ ] Metadata extraction (ID3, FLAC, etc.) using `metadata_god`
-- [ ] Artwork extraction and caching strategy
-- [ ] Sync engine to populate local database
+## Milestone 3: Real Audio Engine (Phase 3)
+*Status: [x] Completed*
+
+**Goal:** Replace the mock playback behavior with a real local audio playback system.
+
+- [x] **Audio framework integration**
+  - Integrate `media_kit` for cross-platform audio playback.
+  - Integrate `audio_service` for Android background playback integration.
+- [x] **Playback service layer**
+  - Implement `AudioPlayerService` wrapping `media_kit`.
+  - Create robust Riverpod `PlaybackState` (current song, playing, buffered, queue).
+- [x] **Queue management**
+  - Implement queue list, play next, play previous, shuffle, and repeat.
+  - Isolate queue logic for pure Dart testing.
+- [x] **UI integration**
+  - Connect `MiniPlayer` to real `AudioPlayerService`.
+  - Connect `NowPlayingScreen` to real `AudioPlayerService`.
+- [x] **Testing**
+  - Create pure Dart tests for queue manipulation logic.
+  - Verify Android APK build.
 
 ## Phase 4: Audio Playback Engine
 - [ ] Integrate `media_kit` for cross-platform audio

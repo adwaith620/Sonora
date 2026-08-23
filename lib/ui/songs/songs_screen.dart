@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/extensions.dart';
 import '../../data/mock_data.dart';
+import '../../data/providers/audio_provider.dart';
 import '../../theme/dimensions.dart';
 import '../common/song_list_tile.dart';
 
 /// Songs screen — displays all songs in the library.
-class SongsScreen extends StatelessWidget {
+class SongsScreen extends ConsumerWidget {
   const SongsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final audioService = ref.read(audioPlayerServiceProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -43,7 +46,11 @@ class SongsScreen extends StatelessWidget {
                 ),
                 const Spacer(),
                 FilledButton.tonalIcon(
-                  onPressed: () {},
+                  onPressed: () {
+                    final shuffled = List.of(mockSongs)..shuffle();
+                    audioService.playQueue(shuffled);
+                    audioService.toggleShuffle(); // Sync shuffle state internally
+                  },
                   icon: const Icon(Icons.shuffle_rounded, size: 18),
                   label: const Text('Shuffle'),
                 ),
@@ -55,7 +62,12 @@ class SongsScreen extends StatelessWidget {
             child: ListView.builder(
               itemCount: mockSongs.length,
               itemBuilder: (context, index) {
-                return SongListTile(song: mockSongs[index], onTap: () {});
+                return SongListTile(
+                  song: mockSongs[index],
+                  onTap: () {
+                    audioService.playQueue(mockSongs, startIndex: index);
+                  },
+                );
               },
             ),
           ),

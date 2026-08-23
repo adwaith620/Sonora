@@ -33,6 +33,9 @@ dependencies:
   sqlite3_flutter_libs: ^0.6.0+eol
   path: ^1.9.1
   uuid: ^4.6.0
+  media_kit: ^1.2.6
+  media_kit_libs_audio: ^1.0.7
+  audio_service: ^0.18.19
 
 dev_dependencies:
   flutter_test:

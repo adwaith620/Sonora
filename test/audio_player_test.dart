@@ -1,0 +1,110 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sonora/data/models/song.dart';
+import 'package:sonora/services/audio_player_service.dart';
+import 'package:sonora/data/providers/audio_provider.dart';
+
+void main() {
+  group('PlaybackStateNotifier Queue Logic', () {
+    late ProviderContainer container;
+
+    final song1 = const Song(id: '1', filePath: 'test1.mp3', title: 'Song 1');
+    final song2 = const Song(id: '2', filePath: 'test2.mp3', title: 'Song 2');
+    final song3 = const Song(id: '3', filePath: 'test3.mp3', title: 'Song 3');
+
+    setUp(() {
+      container = ProviderContainer();
+    });
+
+    tearDown(() {
+      container.dispose();
+    });
+
+    test('Initial state is correct', () {
+      final state = container.read(playbackStateNotifierProvider);
+      expect(state.queue, isEmpty);
+      expect(state.currentIndex, -1);
+      expect(state.isPlaying, isFalse);
+    });
+
+    test('playQueue sets the queue and current index', () {
+      final notifier = container.read(playbackStateNotifierProvider.notifier);
+      notifier.playQueue([song1, song2, song3], startIndex: 1);
+      
+      final state = container.read(playbackStateNotifierProvider);
+      expect(state.queue.length, 3);
+      expect(state.currentIndex, 1);
+      expect(state.currentSong, song2);
+    });
+
+    test('addToQueue appends to the end', () {
+      final notifier = container.read(playbackStateNotifierProvider.notifier);
+      notifier.playQueue([song1]);
+      notifier.addToQueue(song2);
+      
+      final state = container.read(playbackStateNotifierProvider);
+      expect(state.queue.length, 2);
+      expect(state.queue.last, song2);
+      expect(state.currentIndex, 0);
+    });
+
+    test('addToQueueNext inserts after current', () {
+      final notifier = container.read(playbackStateNotifierProvider.notifier);
+      notifier.playQueue([song1, song3], startIndex: 0);
+      notifier.addToQueueNext(song2);
+      
+      final state = container.read(playbackStateNotifierProvider);
+      expect(state.queue.length, 3);
+      expect(state.queue[1], song2);
+      expect(state.queue[2], song3);
+    });
+
+    test('removeFromQueue removes correct item and adjusts index', () {
+      final notifier = container.read(playbackStateNotifierProvider.notifier);
+      notifier.playQueue([song1, song2, song3], startIndex: 1); // playing song2
+      
+      // Remove song1 (before current)
+      notifier.removeFromQueue(0);
+      final state = container.read(playbackStateNotifierProvider);
+      expect(state.queue.length, 2);
+      expect(state.currentIndex, 0); // index shifted down
+      expect(state.currentSong, song2);
+    });
+
+    test('toggleShuffle maintains current song but randomizes rest', () {
+      final notifier = container.read(playbackStateNotifierProvider.notifier);
+      notifier.playQueue([song1, song2, song3], startIndex: 1); // playing song2
+      
+      notifier.toggleShuffle();
+      var state = container.read(playbackStateNotifierProvider);
+      expect(state.shuffleEnabled, isTrue);
+      expect(state.queue.length, 3);
+      expect(state.currentSong, song2);
+      expect(state.currentIndex, 0); // Current song moves to index 0 when shuffled
+      
+      notifier.toggleShuffle();
+      state = container.read(playbackStateNotifierProvider);
+      expect(state.shuffleEnabled, isFalse);
+      expect(state.queue, [song1, song2, song3]); // Original queue restored
+      expect(state.currentIndex, 1); // Index restored
+    });
+
+    test('cycleRepeatMode transitions correctly', () {
+      final notifier = container.read(playbackStateNotifierProvider.notifier);
+      var state = container.read(playbackStateNotifierProvider);
+      expect(state.repeatMode, SonoraRepeatMode.off);
+      
+      notifier.cycleRepeatMode();
+      state = container.read(playbackStateNotifierProvider);
+      expect(state.repeatMode, SonoraRepeatMode.all);
+      
+      notifier.cycleRepeatMode();
+      state = container.read(playbackStateNotifierProvider);
+      expect(state.repeatMode, SonoraRepeatMode.one);
+      
+      notifier.cycleRepeatMode();
+      state = container.read(playbackStateNotifierProvider);
+      expect(state.repeatMode, SonoraRepeatMode.off);
+    });
+  });
+}

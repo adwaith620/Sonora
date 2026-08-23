@@ -5,6 +5,7 @@
 library;
 
 import 'package:flutter/foundation.dart';
+import '../data/models/song.dart';
 
 /// Repeat mode for the audio player.
 enum SonoraRepeatMode { off, all, one }
@@ -13,22 +14,32 @@ enum SonoraRepeatMode { off, all, one }
 @immutable
 class PlaybackState {
   const PlaybackState({
+    this.currentSong,
     this.isPlaying = false,
+    this.isLoading = false,
     this.position = Duration.zero,
     this.duration = Duration.zero,
+    this.bufferedPosition = Duration.zero,
     this.volume = 1.0,
     this.shuffleEnabled = false,
     this.repeatMode = SonoraRepeatMode.off,
+    this.queue = const [],
     this.currentIndex = -1,
+    this.error,
   });
 
+  final Song? currentSong;
   final bool isPlaying;
+  final bool isLoading;
   final Duration position;
   final Duration duration;
+  final Duration bufferedPosition;
   final double volume;
   final bool shuffleEnabled;
   final SonoraRepeatMode repeatMode;
+  final List<Song> queue;
   final int currentIndex;
+  final String? error;
 
   /// Progress as a value between 0.0 and 1.0.
   double get progress => duration.inMilliseconds > 0
@@ -36,22 +47,32 @@ class PlaybackState {
       : 0.0;
 
   PlaybackState copyWith({
+    Song? currentSong,
     bool? isPlaying,
+    bool? isLoading,
     Duration? position,
     Duration? duration,
+    Duration? bufferedPosition,
     double? volume,
     bool? shuffleEnabled,
     SonoraRepeatMode? repeatMode,
+    List<Song>? queue,
     int? currentIndex,
+    String? error,
   }) {
     return PlaybackState(
+      currentSong: currentSong ?? this.currentSong,
       isPlaying: isPlaying ?? this.isPlaying,
+      isLoading: isLoading ?? this.isLoading,
       position: position ?? this.position,
       duration: duration ?? this.duration,
+      bufferedPosition: bufferedPosition ?? this.bufferedPosition,
       volume: volume ?? this.volume,
       shuffleEnabled: shuffleEnabled ?? this.shuffleEnabled,
       repeatMode: repeatMode ?? this.repeatMode,
+      queue: queue ?? this.queue,
       currentIndex: currentIndex ?? this.currentIndex,
+      error: error ?? this.error,
     );
   }
 }
@@ -67,11 +88,14 @@ abstract class AudioPlayerService {
   /// Current playback state.
   PlaybackState get currentState;
 
-  /// Play a specific file path.
-  Future<void> play(String filePath);
+  /// Initialize the audio service.
+  Future<void> init();
 
-  /// Play a list of file paths starting at [index].
-  Future<void> playAll(List<String> filePaths, {int startIndex = 0});
+  /// Play a specific song and optionally replace the queue.
+  Future<void> playSong(Song song, {List<Song>? queue});
+
+  /// Play a list of songs starting at [startIndex].
+  Future<void> playQueue(List<Song> queue, {int startIndex = 0});
 
   /// Pause playback.
   Future<void> pause();
@@ -98,25 +122,25 @@ abstract class AudioPlayerService {
   Future<void> setVolume(double volume);
 
   /// Toggle shuffle mode.
-  void toggleShuffle();
+  Future<void> toggleShuffle();
 
   /// Cycle through repeat modes.
-  void cycleRepeatMode();
+  Future<void> cycleRepeatMode();
 
-  /// Add a file path to the end of the queue.
-  void addToQueue(String filePath);
+  /// Add a song to the end of the queue.
+  Future<void> addToQueue(Song song);
 
-  /// Add a file path to play next.
-  void addToQueueNext(String filePath);
+  /// Add a song to play next.
+  Future<void> addToQueueNext(Song song);
 
   /// Remove an item from the queue by index.
-  void removeFromQueue(int index);
+  Future<void> removeFromQueue(int index);
 
   /// Reorder an item in the queue.
-  void reorderQueue(int oldIndex, int newIndex);
+  Future<void> reorderQueue(int oldIndex, int newIndex);
 
-  /// Get the current queue.
-  List<String> get queue;
+  /// Clear the queue (leaves current song playing if any).
+  Future<void> clearQueue();
 
   /// Dispose resources.
   Future<void> dispose();

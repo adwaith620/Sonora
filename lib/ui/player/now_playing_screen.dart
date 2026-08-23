@@ -1,45 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/extensions.dart';
-import '../../data/mock_data.dart';
 import '../../data/models/song.dart';
+import '../../data/providers/audio_provider.dart';
 import '../../services/audio_player_service.dart';
 import '../../theme/dimensions.dart';
 import '../common/artwork_widget.dart';
 
 /// Now Playing screen — the full-screen music player.
-///
-/// Designed as a modal bottom sheet that slides up from the mini player.
-/// Visually inspired by OpenTune's immersive player with large artwork,
-/// clean controls, and dynamic theming.
-class NowPlayingScreen extends StatefulWidget {
+class NowPlayingScreen extends ConsumerWidget {
   const NowPlayingScreen({super.key});
 
   @override
-  State<NowPlayingScreen> createState() => _NowPlayingScreenState();
-}
-
-class _NowPlayingScreenState extends State<NowPlayingScreen> {
-  // Mock playback state for Phase 1
-  double _progress = 0.35;
-  bool _isPlaying = true;
-  bool _isFavorite = true;
-  bool _shuffleEnabled = false;
-  SonoraRepeatMode _repeatMode = SonoraRepeatMode.off;
-
-  Song get _currentSong => mockCurrentSong;
-
-  Duration get _elapsed => Duration(
-    milliseconds: (_progress * _currentSong.duration.inMilliseconds).round(),
-  );
-
-  Duration get _remaining => _currentSong.duration - _elapsed;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final size = MediaQuery.sizeOf(context);
     final isCompact = size.width < 600;
+
+    final playbackState = ref.watch(playbackStateProvider).valueOrNull ?? const PlaybackState();
+    final currentSong = playbackState.currentSong;
+
+    if (currentSong == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text('No song playing'),
+        ),
+      );
+    }
 
     return Scaffold(
       body: Container(
@@ -59,13 +47,13 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
           child: Column(
             children: [
               // Top bar
-              _buildTopBar(context),
+              _buildTopBar(context, currentSong),
 
               // Main content
               Expanded(
                 child: isCompact
-                    ? _buildCompactLayout(context)
-                    : _buildWideLayout(context),
+                    ? _buildCompactLayout(context, currentSong, playbackState, ref)
+                    : _buildWideLayout(context, currentSong, playbackState, ref),
               ),
 
               // Bottom actions
@@ -79,7 +67,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
     );
   }
 
-  Widget _buildTopBar(BuildContext context) {
+  Widget _buildTopBar(BuildContext context, Song currentSong) {
     final theme = Theme.of(context);
 
     return Padding(
@@ -104,7 +92,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
                   ),
                 ),
                 Text(
-                  _currentSong.album,
+                  currentSong.album,
                   style: theme.textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -123,7 +111,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
     );
   }
 
-  Widget _buildCompactLayout(BuildContext context) {
+  Widget _buildCompactLayout(BuildContext context, Song currentSong, PlaybackState playbackState, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: Spacing.xl),
       child: Column(
@@ -131,27 +119,27 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
         children: [
           const Spacer(flex: 1),
           // Album artwork
-          _buildArtwork(context, 280),
+          _buildArtwork(context, currentSong, 280),
           const Spacer(flex: 1),
           // Song info
-          _buildSongInfo(context),
+          _buildSongInfo(context, currentSong),
           const SizedBox(height: Spacing.xl),
           // Progress bar
-          _buildProgressBar(context),
+          _buildProgressBar(context, playbackState, ref),
           const SizedBox(height: Spacing.lg),
           // Playback controls
-          _buildPlaybackControls(context),
+          _buildPlaybackControls(context, playbackState, ref),
           const Spacer(flex: 1),
         ],
       ),
     );
   }
 
-  Widget _buildWideLayout(BuildContext context) {
+  Widget _buildWideLayout(BuildContext context, Song currentSong, PlaybackState playbackState, WidgetRef ref) {
     return Row(
       children: [
         // Left: artwork
-        Expanded(child: Center(child: _buildArtwork(context, 360))),
+        Expanded(child: Center(child: _buildArtwork(context, currentSong, 360))),
         // Right: controls
         Expanded(
           child: Padding(
@@ -159,11 +147,11 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildSongInfo(context),
+                _buildSongInfo(context, currentSong),
                 const SizedBox(height: Spacing.xxl),
-                _buildProgressBar(context),
+                _buildProgressBar(context, playbackState, ref),
                 const SizedBox(height: Spacing.xl),
-                _buildPlaybackControls(context),
+                _buildPlaybackControls(context, playbackState, ref),
               ],
             ),
           ),
@@ -172,7 +160,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
     );
   }
 
-  Widget _buildArtwork(BuildContext context, double artworkSize) {
+  Widget _buildArtwork(BuildContext context, Song currentSong, double artworkSize) {
     final theme = Theme.of(context);
 
     return Container(
@@ -187,7 +175,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
         ],
       ),
       child: ArtworkWidget(
-        artworkPath: _currentSong.artworkPath,
+        artworkPath: currentSong.artworkPath,
         size: artworkSize,
         borderRadius: BorderRadius.circular(Radii.extraLarge),
         icon: Icons.music_note_rounded,
@@ -196,8 +184,9 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
     );
   }
 
-  Widget _buildSongInfo(BuildContext context) {
+  Widget _buildSongInfo(BuildContext context, Song currentSong) {
     final theme = Theme.of(context);
+    final isFavorite = currentSong.isFavorite;
 
     return Row(
       children: [
@@ -206,7 +195,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                _currentSong.title,
+                currentSong.title,
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -215,7 +204,7 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
               ),
               const SizedBox(height: Spacing.xs),
               Text(
-                '${_currentSong.artist} • ${_currentSong.album}',
+                '${currentSong.artist} • ${currentSong.album}',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -227,19 +216,20 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
         ),
         IconButton(
           icon: Icon(
-            _isFavorite
-                ? Icons.favorite_rounded
-                : Icons.favorite_border_rounded,
-            color: _isFavorite ? theme.colorScheme.primary : null,
+            isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+            color: isFavorite ? theme.colorScheme.primary : null,
           ),
-          onPressed: () => setState(() => _isFavorite = !_isFavorite),
+          onPressed: () {},
         ),
       ],
     );
   }
 
-  Widget _buildProgressBar(BuildContext context) {
+  Widget _buildProgressBar(BuildContext context, PlaybackState state, WidgetRef ref) {
     final theme = Theme.of(context);
+    final progress = state.progress;
+    final elapsed = state.position;
+    final remaining = state.duration - state.position;
 
     return Column(
       children: [
@@ -250,8 +240,13 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
             overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
           ),
           child: Slider(
-            value: _progress,
-            onChanged: (value) => setState(() => _progress = value),
+            value: progress,
+            onChanged: (value) {
+              final newPosition = Duration(
+                milliseconds: (value * state.duration.inMilliseconds).round(),
+              );
+              ref.read(audioPlayerServiceProvider).seek(newPosition);
+            },
           ),
         ),
         Padding(
@@ -260,13 +255,13 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                _elapsed.toPlaybackString(),
+                elapsed.toPlaybackString(),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
               Text(
-                _remaining.toRemainingString(),
+                remaining.toRemainingString(),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -278,8 +273,9 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
     );
   }
 
-  Widget _buildPlaybackControls(BuildContext context) {
+  Widget _buildPlaybackControls(BuildContext context, PlaybackState state, WidgetRef ref) {
     final theme = Theme.of(context);
+    final audio = ref.read(audioPlayerServiceProvider);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -288,26 +284,26 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
         IconButton(
           icon: Icon(
             Icons.shuffle_rounded,
-            color: _shuffleEnabled ? theme.colorScheme.primary : null,
+            color: state.shuffleEnabled ? theme.colorScheme.primary : null,
           ),
-          onPressed: () => setState(() => _shuffleEnabled = !_shuffleEnabled),
+          onPressed: () => audio.toggleShuffle(),
         ),
 
         // Previous
         IconButton(
           icon: const Icon(Icons.skip_previous_rounded, size: 36),
-          onPressed: () {},
+          onPressed: () => audio.previous(),
         ),
 
         // Play/Pause
         FilledButton(
-          onPressed: () => setState(() => _isPlaying = !_isPlaying),
+          onPressed: () => audio.togglePlayPause(),
           style: FilledButton.styleFrom(
             shape: const CircleBorder(),
             padding: const EdgeInsets.all(16),
           ),
           child: Icon(
-            _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+            state.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
             size: 36,
           ),
         ),
@@ -315,26 +311,20 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
         // Next
         IconButton(
           icon: const Icon(Icons.skip_next_rounded, size: 36),
-          onPressed: () {},
+          onPressed: () => audio.next(),
         ),
 
         // Repeat
         IconButton(
           icon: Icon(
-            _repeatMode == SonoraRepeatMode.one
+            state.repeatMode == SonoraRepeatMode.one
                 ? Icons.repeat_one_rounded
                 : Icons.repeat_rounded,
-            color: _repeatMode != SonoraRepeatMode.off
+            color: state.repeatMode != SonoraRepeatMode.off
                 ? theme.colorScheme.primary
                 : null,
           ),
-          onPressed: () {
-            setState(() {
-              _repeatMode =
-                  SonoraRepeatMode.values[(_repeatMode.index + 1) %
-                      SonoraRepeatMode.values.length];
-            });
-          },
+          onPressed: () => audio.cycleRepeatMode(),
         ),
       ],
     );
@@ -349,12 +339,10 @@ class _NowPlayingScreenState extends State<NowPlayingScreen> {
           IconButton(
             icon: const Icon(Icons.queue_music_rounded),
             onPressed: () {},
-            tooltip: 'Queue',
           ),
           IconButton(
-            icon: const Icon(Icons.playlist_add_rounded),
+            icon: const Icon(Icons.share_rounded),
             onPressed: () {},
-            tooltip: 'Add to Playlist',
           ),
         ],
       ),
