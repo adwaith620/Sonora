@@ -72,7 +72,7 @@ class _MusicFoldersScreenState extends ConsumerState<MusicFoldersScreen> {
                   }
                 }
 
-                final path = await FilePicker.getDirectoryPath(
+                final path = await FilePicker.platform.getDirectoryPath(
                   dialogTitle: 'Select Music Folder',
                 );
                 if (path != null) {
