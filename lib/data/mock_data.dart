@@ -4,16 +4,16 @@
 /// actual library scanner and database are implemented.
 library;
 
-import 'models/song.dart';
 import 'models/album.dart';
 import 'models/artist.dart';
 import 'models/playlist.dart';
+import 'models/song.dart';
 
 /// Mock songs for UI development.
 final List<Song> mockSongs = [
   Song(
     id: 's1',
-    filePath: 'C:/Windows/Media/tada.wav',
+    filePath: '/mock/audio/morning_light.flac',
     title: 'Morning Light',
     artist: 'Luna Wave',
     album: 'Daybreak',
@@ -27,7 +27,7 @@ final List<Song> mockSongs = [
   ),
   Song(
     id: 's2',
-    filePath: 'C:/Windows/Media/Alarm01.wav',
+    filePath: '/mock/audio/golden_hour.flac',
     title: 'Golden Hour',
     artist: 'Luna Wave',
     album: 'Daybreak',
@@ -40,7 +40,7 @@ final List<Song> mockSongs = [
   ),
   Song(
     id: 's3',
-    filePath: 'C:/Windows/Media/Ring01.wav',
+    filePath: '/mock/audio/midnight_drive.mp3',
     title: 'Midnight Drive',
     artist: 'Echo Valley',
     album: 'Neon Roads',
@@ -54,7 +54,7 @@ final List<Song> mockSongs = [
   ),
   Song(
     id: 's4',
-    filePath: 'C:/Windows/Media/notify.wav',
+    filePath: '/mock/audio/neon_skies.mp3',
     title: 'City Lights',
     artist: 'Echo Valley',
     album: 'Neon Roads',

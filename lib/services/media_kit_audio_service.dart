@@ -1,48 +1,49 @@
 import 'dart:async';
 
 import 'package:media_kit/media_kit.dart';
+
 import '../data/models/song.dart';
 import '../data/providers/queue_provider.dart';
-import 'audio_player_service.dart';
 import 'audio_handler.dart';
+import 'audio_player_service.dart';
 
 class MediaKitAudioService implements AudioPlayerService {
   MediaKitAudioService(this._notifier, this._handler) {
     _player = Player();
     _handler?.audioService = this;
-    
+
     _player.stream.playing.listen((isPlaying) {
-      final newState = _notifier.state.copyWith(isPlaying: isPlaying);
+      final newState = _notifier.currentState.copyWith(isPlaying: isPlaying);
       _notifier.updateState(newState);
       _handler?.broadcastState(newState);
     });
 
     _player.stream.position.listen((position) {
-      final newState = _notifier.state.copyWith(position: position);
+      final newState = _notifier.currentState.copyWith(position: position);
       _notifier.updateState(newState);
       _handler?.broadcastState(newState);
     });
 
     _player.stream.duration.listen((duration) {
-      final newState = _notifier.state.copyWith(duration: duration);
+      final newState = _notifier.currentState.copyWith(duration: duration);
       _notifier.updateState(newState);
       _handler?.broadcastState(newState);
     });
 
     _player.stream.buffer.listen((buffer) {
-      final newState = _notifier.state.copyWith(bufferedPosition: buffer);
+      final newState = _notifier.currentState.copyWith(bufferedPosition: buffer);
       _notifier.updateState(newState);
       _handler?.broadcastState(newState);
     });
 
     _player.stream.volume.listen((volume) {
-      final newState = _notifier.state.copyWith(volume: volume / 100.0);
+      final newState = _notifier.currentState.copyWith(volume: volume / 100.0);
       _notifier.updateState(newState);
       // Volume changes don't usually need to be broadcast to OS media session in the same way
     });
-    
+
     _player.stream.error.listen((error) {
-      final newState = _notifier.state.copyWith(error: error);
+      final newState = _notifier.currentState.copyWith(error: error);
       _notifier.updateState(newState);
       _handler?.broadcastState(newState);
     });
@@ -50,7 +51,7 @@ class MediaKitAudioService implements AudioPlayerService {
     _player.stream.playlist.listen((playlist) {
       if (playlist.index >= 0 && playlist.index < currentState.queue.length) {
         final currentSong = currentState.queue[playlist.index];
-        final newState = _notifier.state.copyWith(
+        final newState = _notifier.currentState.copyWith(
           currentIndex: playlist.index,
           currentSong: currentSong,
         );
@@ -68,7 +69,7 @@ class MediaKitAudioService implements AudioPlayerService {
   Stream<PlaybackState> get playbackStateStream => const Stream.empty(); // Not used anymore
 
   @override
-  PlaybackState get currentState => _notifier.state;
+  PlaybackState get currentState => _notifier.currentState;
 
   @override
   Future<void> init() async {}
@@ -86,9 +87,11 @@ class MediaKitAudioService implements AudioPlayerService {
   }
 
   Future<void> _syncPlaylistToPlayer() async {
-    final medias = currentState.queue.map((song) => Media(song.filePath)).toList();
+    final medias = currentState.queue
+        .map((song) => Media(song.filePath))
+        .toList();
     final playlist = Playlist(medias, index: currentState.currentIndex);
-    
+
     await _applyRepeatModeToPlayer(currentState.repeatMode);
     await _player.open(playlist, play: true);
   }
@@ -121,7 +124,9 @@ class MediaKitAudioService implements AudioPlayerService {
   @override
   Future<void> stop() async {
     await _player.stop();
-    _notifier.updateState(_notifier.state.copyWith(isPlaying: false, position: Duration.zero));
+    _notifier.updateState(
+      _notifier.currentState.copyWith(isPlaying: false, position: Duration.zero),
+    );
   }
 
   @override
@@ -140,7 +145,8 @@ class MediaKitAudioService implements AudioPlayerService {
   }
 
   @override
-  Future<void> setVolume(double volume) async => await _player.setVolume(volume * 100.0);
+  Future<void> setVolume(double volume) async =>
+      await _player.setVolume(volume * 100.0);
 
   @override
   Future<void> toggleShuffle() async {
@@ -195,9 +201,12 @@ class MediaKitAudioService implements AudioPlayerService {
     _notifier.clearQueue();
     final current = currentState.currentSong;
     if (current == null) {
-      await _player.open(Playlist([]));
+      await _player.open(const Playlist([]));
     } else {
-      await _player.open(Playlist([Media(current.filePath)]), play: currentState.isPlaying);
+      await _player.open(
+        Playlist([Media(current.filePath)]),
+        play: currentState.isPlaying,
+      );
     }
   }
 

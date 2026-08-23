@@ -58,23 +58,27 @@ class LibraryDao extends DatabaseAccessor<SonoraDatabase>
       into(albums).insert(album, mode: InsertMode.insertOrReplace);
 
   Future<void> insertAlbums(List<Insertable<AlbumEntity>> items) async {
-    await batch((b) => b.insertAll(albums, items, mode: InsertMode.insertOrReplace));
+    await batch(
+      (b) => b.insertAll(albums, items, mode: InsertMode.insertOrReplace),
+    );
   }
-  
+
   Future<List<SongEntity>> getSongsForAlbum(String albumId) =>
       (select(songs)..where((t) => t.albumId.equals(albumId))).get();
 
   // === Artists ===
   Future<List<ArtistEntity>> getAllArtists() => select(artists).get();
-  
+
   Future<ArtistEntity?> getArtistById(String id) =>
       (select(artists)..where((t) => t.id.equals(id))).getSingleOrNull();
-      
+
   Future<void> insertArtist(Insertable<ArtistEntity> artist) =>
       into(artists).insert(artist, mode: InsertMode.insertOrReplace);
-      
+
   Future<void> insertArtists(List<Insertable<ArtistEntity>> items) async {
-    await batch((b) => b.insertAll(artists, items, mode: InsertMode.insertOrReplace));
+    await batch(
+      (b) => b.insertAll(artists, items, mode: InsertMode.insertOrReplace),
+    );
   }
 
   Future<List<SongEntity>> getSongsForArtist(String artistId) =>
@@ -87,15 +91,17 @@ class LibraryDao extends DatabaseAccessor<SonoraDatabase>
       into(playlists).insert(playlist, mode: InsertMode.insertOrReplace);
 
   Future<void> addSongToPlaylist(
-      String playlistId, String songId, int position) =>
-      into(playlistSongs).insert(
-        PlaylistSongsCompanion.insert(
-          playlistId: playlistId,
-          songId: songId,
-          position: position,
-        ),
-        mode: InsertMode.insertOrReplace,
-      );
+    String playlistId,
+    String songId,
+    int position,
+  ) => into(playlistSongs).insert(
+    PlaylistSongsCompanion.insert(
+      playlistId: playlistId,
+      songId: songId,
+      position: position,
+    ),
+    mode: InsertMode.insertOrReplace,
+  );
 
   Future<List<SongEntity>> getSongsForPlaylist(String playlistId) {
     final query =

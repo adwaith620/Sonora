@@ -1,7 +1,7 @@
 import '../../services/library_service.dart';
-import '../models/song.dart';
 import '../models/album.dart';
 import '../models/artist.dart';
+import '../models/song.dart';
 import 'database.dart';
 
 /// Extension to map Drift entities to domain models
@@ -42,11 +42,7 @@ extension AlbumEntityMapper on AlbumEntity {
 
 extension ArtistEntityMapper on ArtistEntity {
   Artist toDomain() {
-    return Artist(
-      id: id,
-      name: name,
-      artworkPath: artworkPath,
-    );
+    return Artist(id: id, name: name, artworkPath: artworkPath);
   }
 }
 
@@ -57,7 +53,10 @@ class DriftLibraryService implements LibraryService {
   final SonoraDatabase _db;
 
   @override
-  Future<List<Song>> getAllSongs({bool ascending = true, SongSortField? sortBy}) async {
+  Future<List<Song>> getAllSongs({
+    bool ascending = true,
+    SongSortField? sortBy,
+  }) async {
     final entities = await _db.libraryDao.getAllSongs();
     final domainSongs = entities.map((e) => e.toDomain()).toList();
     final sort = sortBy ?? SongSortField.title;

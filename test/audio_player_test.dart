@@ -1,16 +1,16 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:sonora/data/models/song.dart';
-import 'package:sonora/services/audio_player_service.dart';
 import 'package:sonora/data/providers/audio_provider.dart';
+import 'package:sonora/services/audio_player_service.dart';
 
 void main() {
   group('PlaybackStateNotifier Queue Logic', () {
     late ProviderContainer container;
 
-    final song1 = const Song(id: '1', filePath: 'test1.mp3', title: 'Song 1');
-    final song2 = const Song(id: '2', filePath: 'test2.mp3', title: 'Song 2');
-    final song3 = const Song(id: '3', filePath: 'test3.mp3', title: 'Song 3');
+    const song1 = Song(id: '1', filePath: 'test1.mp3', title: 'Song 1');
+    const song2 = Song(id: '2', filePath: 'test2.mp3', title: 'Song 2');
+    const song3 = Song(id: '3', filePath: 'test3.mp3', title: 'Song 3');
 
     setUp(() {
       container = ProviderContainer();
@@ -30,7 +30,7 @@ void main() {
     test('playQueue sets the queue and current index', () {
       final notifier = container.read(playbackStateNotifierProvider.notifier);
       notifier.playQueue([song1, song2, song3], startIndex: 1);
-      
+
       final state = container.read(playbackStateNotifierProvider);
       expect(state.queue.length, 3);
       expect(state.currentIndex, 1);
@@ -41,7 +41,7 @@ void main() {
       final notifier = container.read(playbackStateNotifierProvider.notifier);
       notifier.playQueue([song1]);
       notifier.addToQueue(song2);
-      
+
       final state = container.read(playbackStateNotifierProvider);
       expect(state.queue.length, 2);
       expect(state.queue.last, song2);
@@ -52,7 +52,7 @@ void main() {
       final notifier = container.read(playbackStateNotifierProvider.notifier);
       notifier.playQueue([song1, song3], startIndex: 0);
       notifier.addToQueueNext(song2);
-      
+
       final state = container.read(playbackStateNotifierProvider);
       expect(state.queue.length, 3);
       expect(state.queue[1], song2);
@@ -62,7 +62,7 @@ void main() {
     test('removeFromQueue removes correct item and adjusts index', () {
       final notifier = container.read(playbackStateNotifierProvider.notifier);
       notifier.playQueue([song1, song2, song3], startIndex: 1); // playing song2
-      
+
       // Remove song1 (before current)
       notifier.removeFromQueue(0);
       final state = container.read(playbackStateNotifierProvider);
@@ -74,14 +74,17 @@ void main() {
     test('toggleShuffle maintains current song but randomizes rest', () {
       final notifier = container.read(playbackStateNotifierProvider.notifier);
       notifier.playQueue([song1, song2, song3], startIndex: 1); // playing song2
-      
+
       notifier.toggleShuffle();
       var state = container.read(playbackStateNotifierProvider);
       expect(state.shuffleEnabled, isTrue);
       expect(state.queue.length, 3);
       expect(state.currentSong, song2);
-      expect(state.currentIndex, 0); // Current song moves to index 0 when shuffled
-      
+      expect(
+        state.currentIndex,
+        0,
+      ); // Current song moves to index 0 when shuffled
+
       notifier.toggleShuffle();
       state = container.read(playbackStateNotifierProvider);
       expect(state.shuffleEnabled, isFalse);
@@ -93,15 +96,15 @@ void main() {
       final notifier = container.read(playbackStateNotifierProvider.notifier);
       var state = container.read(playbackStateNotifierProvider);
       expect(state.repeatMode, SonoraRepeatMode.off);
-      
+
       notifier.cycleRepeatMode();
       state = container.read(playbackStateNotifierProvider);
       expect(state.repeatMode, SonoraRepeatMode.all);
-      
+
       notifier.cycleRepeatMode();
       state = container.read(playbackStateNotifierProvider);
       expect(state.repeatMode, SonoraRepeatMode.one);
-      
+
       notifier.cycleRepeatMode();
       state = container.read(playbackStateNotifierProvider);
       expect(state.repeatMode, SonoraRepeatMode.off);

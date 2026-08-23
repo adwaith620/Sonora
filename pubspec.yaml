@@ -37,6 +37,7 @@ dependencies:
   media_kit_libs_audio: ^1.0.7
   audio_service: ^0.18.19
 
+  sqlite3: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

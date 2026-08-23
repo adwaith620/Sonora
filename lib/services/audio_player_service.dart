@@ -5,6 +5,7 @@
 library;
 
 import 'package:flutter/foundation.dart';
+
 import '../data/models/song.dart';
 
 /// Repeat mode for the audio player.

@@ -22,11 +22,7 @@ class NowPlayingScreen extends ConsumerWidget {
     final currentSong = playbackState.currentSong;
 
     if (currentSong == null) {
-      return const Scaffold(
-        body: Center(
-          child: Text('No song playing'),
-        ),
-      );
+      return const Scaffold(body: Center(child: Text('No song playing')));
     }
 
     return Scaffold(
@@ -52,8 +48,18 @@ class NowPlayingScreen extends ConsumerWidget {
               // Main content
               Expanded(
                 child: isCompact
-                    ? _buildCompactLayout(context, currentSong, playbackState, ref)
-                    : _buildWideLayout(context, currentSong, playbackState, ref),
+                    ? _buildCompactLayout(
+                        context,
+                        currentSong,
+                        playbackState,
+                        ref,
+                      )
+                    : _buildWideLayout(
+                        context,
+                        currentSong,
+                        playbackState,
+                        ref,
+                      ),
               ),
 
               // Bottom actions
@@ -111,7 +117,12 @@ class NowPlayingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildCompactLayout(BuildContext context, Song currentSong, PlaybackState playbackState, WidgetRef ref) {
+  Widget _buildCompactLayout(
+    BuildContext context,
+    Song currentSong,
+    PlaybackState playbackState,
+    WidgetRef ref,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: Spacing.xl),
       child: Column(
@@ -135,11 +146,18 @@ class NowPlayingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildWideLayout(BuildContext context, Song currentSong, PlaybackState playbackState, WidgetRef ref) {
+  Widget _buildWideLayout(
+    BuildContext context,
+    Song currentSong,
+    PlaybackState playbackState,
+    WidgetRef ref,
+  ) {
     return Row(
       children: [
         // Left: artwork
-        Expanded(child: Center(child: _buildArtwork(context, currentSong, 360))),
+        Expanded(
+          child: Center(child: _buildArtwork(context, currentSong, 360)),
+        ),
         // Right: controls
         Expanded(
           child: Padding(
@@ -160,7 +178,11 @@ class NowPlayingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildArtwork(BuildContext context, Song currentSong, double artworkSize) {
+  Widget _buildArtwork(
+    BuildContext context,
+    Song currentSong,
+    double artworkSize,
+  ) {
     final theme = Theme.of(context);
 
     return Container(
@@ -225,7 +247,11 @@ class NowPlayingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProgressBar(BuildContext context, PlaybackState state, WidgetRef ref) {
+  Widget _buildProgressBar(
+    BuildContext context,
+    PlaybackState state,
+    WidgetRef ref,
+  ) {
     final theme = Theme.of(context);
     final progress = state.progress;
     final elapsed = state.position;
@@ -273,7 +299,11 @@ class NowPlayingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPlaybackControls(BuildContext context, PlaybackState state, WidgetRef ref) {
+  Widget _buildPlaybackControls(
+    BuildContext context,
+    PlaybackState state,
+    WidgetRef ref,
+  ) {
     final theme = Theme.of(context);
     final audio = ref.read(audioPlayerServiceProvider);
 
@@ -340,10 +370,7 @@ class NowPlayingScreen extends ConsumerWidget {
             icon: const Icon(Icons.queue_music_rounded),
             onPressed: () {},
           ),
-          IconButton(
-            icon: const Icon(Icons.share_rounded),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.share_rounded), onPressed: () {}),
         ],
       ),
     );

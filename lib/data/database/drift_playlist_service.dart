@@ -1,6 +1,5 @@
-import 'package:uuid/uuid.dart';
-
 import 'package:drift/drift.dart' as drift;
+import 'package:uuid/uuid.dart';
 
 import '../../services/playlist_service.dart';
 import '../models/playlist.dart';

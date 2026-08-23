@@ -6,9 +6,9 @@ library;
 
 import 'package:flutter/foundation.dart';
 
-import '../data/models/song.dart';
 import '../data/models/album.dart';
 import '../data/models/artist.dart';
+import '../data/models/song.dart';
 
 /// Progress of a library scan operation.
 @immutable

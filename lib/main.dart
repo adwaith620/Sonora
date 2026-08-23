@@ -1,19 +1,17 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:audio_service/audio_service.dart';
 
 import 'core/constants.dart';
 import 'core/platform_utils.dart';
+import 'data/providers/audio_provider.dart';
 import 'navigation/app_router.dart';
+import 'services/audio_handler.dart';
 import 'theme/app_theme.dart';
 import 'theme/theme_provider.dart';
-import 'services/audio_handler.dart';
-import 'data/providers/audio_provider.dart';
-
-import 'package:media_kit/media_kit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,7 +40,9 @@ void main() async {
   runApp(
     ProviderScope(
       overrides: [
-        audioHandlerProvider.overrideWithValue(audioHandler as SonoraAudioHandler),
+        audioHandlerProvider.overrideWithValue(
+          audioHandler,
+        ),
       ],
       child: const SonoraApp(),
     ),

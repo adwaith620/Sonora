@@ -39,7 +39,7 @@ class SongsScreen extends ConsumerWidget {
             child: Row(
               children: [
                 Text(
-                  '${mockSongs.length.plural('song')}',
+                  mockSongs.length.plural('song'),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -49,7 +49,8 @@ class SongsScreen extends ConsumerWidget {
                   onPressed: () {
                     final shuffled = List.of(mockSongs)..shuffle();
                     audioService.playQueue(shuffled);
-                    audioService.toggleShuffle(); // Sync shuffle state internally
+                    audioService
+                        .toggleShuffle(); // Sync shuffle state internally
                   },
                   icon: const Icon(Icons.shuffle_rounded, size: 18),
                   label: const Text('Shuffle'),

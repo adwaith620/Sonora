@@ -1,5 +1,7 @@
 import 'dart:math';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../data/models/song.dart';
 import '../../services/audio_player_service.dart';
 
@@ -11,6 +13,8 @@ class PlaybackStateNotifier extends Notifier<PlaybackState> {
     return const PlaybackState();
   }
 
+  PlaybackState get currentState => state;
+
   void updateState(PlaybackState newState) {
     state = newState;
   }
@@ -18,7 +22,7 @@ class PlaybackStateNotifier extends Notifier<PlaybackState> {
   void playQueue(List<Song> queue, {int startIndex = 0}) {
     if (queue.isEmpty) return;
     _originalQueue = List.from(queue);
-    
+
     state = state.copyWith(
       queue: queue,
       currentIndex: startIndex,
@@ -42,12 +46,12 @@ class PlaybackStateNotifier extends Notifier<PlaybackState> {
 
   void removeFromQueue(int index) {
     if (index < 0 || index >= state.queue.length) return;
-    
+
     final songToRemove = state.queue[index];
     _originalQueue.remove(songToRemove);
-    
+
     final newQueue = List<Song>.from(state.queue)..removeAt(index);
-    
+
     int newIndex = state.currentIndex;
     if (index < newIndex) {
       newIndex--;
@@ -57,7 +61,7 @@ class PlaybackStateNotifier extends Notifier<PlaybackState> {
     } else if (newQueue.isEmpty) {
       newIndex = -1;
     }
-    
+
     state = state.copyWith(
       queue: newQueue,
       currentIndex: newIndex,
@@ -66,16 +70,20 @@ class PlaybackStateNotifier extends Notifier<PlaybackState> {
   }
 
   void reorderQueue(int oldIndex, int newIndex) {
-    if (oldIndex < 0 || oldIndex >= state.queue.length ||
-        newIndex < 0 || newIndex > state.queue.length) return;
-        
+    if (oldIndex < 0 ||
+        oldIndex >= state.queue.length ||
+        newIndex < 0 ||
+        newIndex > state.queue.length) {
+      return;
+    }
+
     final newQueue = List<Song>.from(state.queue);
     final song = newQueue.removeAt(oldIndex);
     if (newIndex > oldIndex) newIndex--;
     newQueue.insert(newIndex, song);
-    
+
     _originalQueue = List.from(newQueue);
-    
+
     int currentIndex = state.currentIndex;
     if (currentIndex == oldIndex) {
       currentIndex = newIndex;
@@ -84,11 +92,8 @@ class PlaybackStateNotifier extends Notifier<PlaybackState> {
     } else if (currentIndex < oldIndex && currentIndex >= newIndex) {
       currentIndex++;
     }
-    
-    state = state.copyWith(
-      queue: newQueue,
-      currentIndex: currentIndex,
-    );
+
+    state = state.copyWith(queue: newQueue, currentIndex: currentIndex);
   }
 
   void clearQueue() {
@@ -111,7 +116,7 @@ class PlaybackStateNotifier extends Notifier<PlaybackState> {
 
     final currentSong = state.currentSong;
     List<Song> newQueue;
-    
+
     if (willShuffle) {
       newQueue = List.from(_originalQueue);
       if (currentSong != null) {
@@ -124,9 +129,9 @@ class PlaybackStateNotifier extends Notifier<PlaybackState> {
     } else {
       newQueue = List.from(_originalQueue);
     }
-    
+
     final newIndex = currentSong != null ? newQueue.indexOf(currentSong) : 0;
-    
+
     state = state.copyWith(
       shuffleEnabled: willShuffle,
       queue: newQueue,
@@ -137,7 +142,7 @@ class PlaybackStateNotifier extends Notifier<PlaybackState> {
   void cycleRepeatMode() {
     final current = state.repeatMode;
     SonoraRepeatMode nextMode;
-    
+
     switch (current) {
       case SonoraRepeatMode.off:
         nextMode = SonoraRepeatMode.all;
@@ -149,7 +154,7 @@ class PlaybackStateNotifier extends Notifier<PlaybackState> {
         nextMode = SonoraRepeatMode.off;
         break;
     }
-    
+
     state = state.copyWith(repeatMode: nextMode);
   }
 }

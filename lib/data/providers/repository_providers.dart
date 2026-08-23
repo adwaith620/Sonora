@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../services/library_service.dart';
+import '../../services/playlist_service.dart';
 import '../database/database.dart';
 import '../database/drift_library_service.dart';
 import '../database/drift_playlist_service.dart';
-import '../../services/library_service.dart';
-import '../../services/playlist_service.dart';
 
 /// Provider for the Drift Database instance.
 final databaseProvider = Provider<SonoraDatabase>((ref) {
