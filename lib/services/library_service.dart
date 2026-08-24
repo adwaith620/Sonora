@@ -77,6 +77,9 @@ abstract class LibraryService {
   /// Get favorite songs.
   Future<List<Song>> getFavorites();
 
+  /// Watch favorite songs as a stream.
+  Stream<List<Song>> watchFavorites();
+
   /// Toggle favorite status for a song.
   Future<void> toggleFavorite(String songId);
 

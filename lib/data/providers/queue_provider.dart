@@ -19,6 +19,29 @@ class PlaybackStateNotifier extends Notifier<PlaybackState> {
     state = newState;
   }
 
+  /// Updates the favorite status of the current song in-memory.
+  ///
+  /// This does NOT persist to the database — that must be done separately.
+  /// Only mutates the in-memory [PlaybackState] so the UI updates instantly.
+  void updateCurrentSongFavorite(bool isFavorite) {
+    final current = state.currentSong;
+    if (current == null) return;
+
+    final updatedSong = current.copyWith(isFavorite: isFavorite);
+
+    // Update the song in the queue list as well
+    final updatedQueue = state.queue.map((s) {
+      return s.id == current.id ? updatedSong : s;
+    }).toList();
+
+    // Update the song in the original queue too
+    _originalQueue = _originalQueue.map((s) {
+      return s.id == current.id ? updatedSong : s;
+    }).toList();
+
+    state = state.copyWith(currentSong: updatedSong, queue: updatedQueue);
+  }
+
   void playQueue(List<Song> queue, {int startIndex = 0}) {
     if (queue.isEmpty) return;
     _originalQueue = List.from(queue);

@@ -45,7 +45,8 @@ class AlbumsScreen extends ConsumerWidget {
                   : 5;
 
               return GridView.builder(
-                padding: const EdgeInsets.all(Spacing.sm).copyWith(bottom: kMiniPlayerHeight + Spacing.md),
+                padding: const EdgeInsets.all(Spacing.sm)
+                    .copyWith(bottom: kMiniPlayerHeight + Spacing.md),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: crossAxisCount,
                   childAspectRatio: 0.75,

@@ -19,7 +19,6 @@ class ArtistsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    
     final artistsAsync = ref.watch(artistsListProvider);
 
     return Scaffold(
@@ -37,7 +36,9 @@ class ArtistsScreen extends ConsumerWidget {
             return const Center(child: Text('No artists found.'));
           }
           return ListView.builder(
-            padding: const EdgeInsets.only(bottom: kMiniPlayerHeight + Spacing.md),
+            padding: const EdgeInsets.only(
+              bottom: kMiniPlayerHeight + Spacing.md,
+            ),
             itemCount: artists.length,
             itemBuilder: (context, index) {
               final artist = artists[index];

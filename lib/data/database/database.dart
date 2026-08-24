@@ -31,7 +31,11 @@ class SonoraDatabase extends _$SonoraDatabase {
     onUpgrade: (Migrator m, int from, int to) async {
       if (from < 2) {
         await m.renameColumn(songs, 'file_path', songs.fileUri);
-        await m.renameColumn(libraryLocations, 'folder_path', libraryLocations.folderUri);
+        await m.renameColumn(
+          libraryLocations,
+          'folder_path',
+          libraryLocations.folderUri,
+        );
       }
     },
     beforeOpen: (details) async {

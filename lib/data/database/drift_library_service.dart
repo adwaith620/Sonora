@@ -132,6 +132,13 @@ class DriftLibraryService implements LibraryService {
   }
 
   @override
+  Stream<List<Song>> watchFavorites() {
+    return _db.libraryDao.watchFavorites().map(
+      (entities) => entities.map((e) => e.toDomain()).toList(),
+    );
+  }
+
+  @override
   Future<void> toggleFavorite(String songId) async {
     await _db.libraryDao.toggleFavorite(songId);
   }

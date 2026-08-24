@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,9 +53,12 @@ class _MusicFoldersScreenState extends ConsumerState<MusicFoldersScreen> {
                           await db.libraryDao.removeLibraryLocation(
                             loc.folderUri,
                           );
-                          if (Platform.isAndroid && loc.folderUri.startsWith('content://')) {
+                          if (Platform.isAndroid &&
+                              loc.folderUri.startsWith('content://')) {
                             // Release the persisted SAF permission
-                            await Saf().releasePersistedPermission(loc.folderUri);
+                            await Saf().releasePersistedPermission(
+                              loc.folderUri,
+                            );
                           }
                           setState(() {});
                         },
@@ -71,7 +75,9 @@ class _MusicFoldersScreenState extends ConsumerState<MusicFoldersScreen> {
                 String? newUri;
                 if (Platform.isAndroid) {
                   final saf = Saf();
-                  final dir = await saf.pickDirectory(persistablePermission: true);
+                  final dir = await saf.pickDirectory(
+                    persistablePermission: true,
+                  );
                   newUri = dir?.uri;
                 } else {
                   newUri = await FilePicker.platform.getDirectoryPath(

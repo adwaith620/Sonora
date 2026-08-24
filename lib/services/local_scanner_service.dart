@@ -90,23 +90,25 @@ class LocalScannerService implements ScannerService {
 
       for (final loc in enabledLocations) {
         if (_isCancelled) break;
-        
+
         if (Platform.isAndroid && loc.folderUri.startsWith('content://')) {
           // Android SAF
           final stream = saf.walk(loc.folderUri);
           await for (final entry in stream) {
-             if (_isCancelled) break;
-             if (!entry.file.isDir) {
-                final ext = p.extension(entry.file.name).toLowerCase();
-                if (kSupportedAudioExtensions.contains(ext)) {
-                  filesToProcess.add(AndroidSafMusicFileReference(entry.file, saf));
-                  discovered++;
-                  if (discovered % 100 == 0) {
-                    _emit(_state.copyWith(filesDiscovered: discovered));
-                    await Future.delayed(Duration.zero);
-                  }
+            if (_isCancelled) break;
+            if (!entry.file.isDir) {
+              final ext = p.extension(entry.file.name).toLowerCase();
+              if (kSupportedAudioExtensions.contains(ext)) {
+                filesToProcess.add(
+                  AndroidSafMusicFileReference(entry.file, saf),
+                );
+                discovered++;
+                if (discovered % 100 == 0) {
+                  _emit(_state.copyWith(filesDiscovered: discovered));
+                  await Future.delayed(Duration.zero);
                 }
-             }
+              }
+            }
           }
         } else {
           // Windows / standard filesystem
@@ -145,10 +147,7 @@ class LocalScannerService implements ScannerService {
 
         if (processed % 10 == 0) {
           _emit(
-            _state.copyWith(
-              filesProcessed: processed,
-              currentFile: file.name,
-            ),
+            _state.copyWith(filesProcessed: processed, currentFile: file.name),
           );
           await Future.delayed(Duration.zero); // Keep UI responsive
         }

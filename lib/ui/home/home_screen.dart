@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants.dart';
 import '../../data/mock_data.dart';
@@ -7,16 +8,19 @@ import '../common/album_grid_tile.dart';
 import '../common/artwork_widget.dart';
 import '../common/section_header.dart';
 import '../common/song_list_tile.dart';
+import '../favorites/favorites_screen.dart'; // For favoriteSongsProvider
 
 /// Home screen — the main landing page of Sonora.
 ///
 /// Shows carousels for recently played, recently added, favorites,
 /// albums, and artists in an OpenTune-inspired layout.
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favoritesAsync = ref.watch(favoriteSongsProvider);
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -40,9 +44,15 @@ class HomeScreen extends StatelessWidget {
 
           // Favorites
           const SectionHeader(title: 'Favorites', actionLabel: 'See all'),
-          _buildSongCarousel(
-            context,
-            mockSongs.where((s) => s.isFavorite).toList(),
+          favoritesAsync.when(
+            data: (songs) => songs.isEmpty
+                ? const Padding(
+                    padding: EdgeInsets.all(Spacing.md),
+                    child: Text('No favorites yet.'),
+                  )
+                : _buildSongCarousel(context, songs),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, stack) => Center(child: Text('Error: $err')),
           ),
 
           // Your Albums

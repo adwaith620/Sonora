@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/extensions.dart';
 import '../../data/models/song.dart';
 import '../../data/providers/audio_provider.dart';
+import '../../data/providers/repository_providers.dart';
 import '../../services/audio_player_service.dart';
 import '../../theme/dimensions.dart';
 import '../common/artwork_widget.dart';
@@ -133,7 +134,7 @@ class NowPlayingScreen extends ConsumerWidget {
           _buildArtwork(context, currentSong, 280),
           const Spacer(flex: 1),
           // Song info
-          _buildSongInfo(context, currentSong),
+          _buildSongInfo(context, currentSong, ref),
           const SizedBox(height: Spacing.xl),
           // Progress bar
           _buildProgressBar(context, playbackState, ref),
@@ -165,7 +166,7 @@ class NowPlayingScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildSongInfo(context, currentSong),
+                _buildSongInfo(context, currentSong, ref),
                 const SizedBox(height: Spacing.xxl),
                 _buildProgressBar(context, playbackState, ref),
                 const SizedBox(height: Spacing.xl),
@@ -206,7 +207,7 @@ class NowPlayingScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSongInfo(BuildContext context, Song currentSong) {
+  Widget _buildSongInfo(BuildContext context, Song currentSong, WidgetRef ref) {
     final theme = Theme.of(context);
     final isFavorite = currentSong.isFavorite;
 
@@ -241,10 +242,29 @@ class NowPlayingScreen extends ConsumerWidget {
             isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
             color: isFavorite ? theme.colorScheme.primary : null,
           ),
-          onPressed: () {},
+          onPressed: () => _toggleFavorite(ref, currentSong),
         ),
       ],
     );
+  }
+
+  Future<void> _toggleFavorite(WidgetRef ref, Song song) async {
+    final newFavorite = !song.isFavorite;
+
+    // 1. Immediately update in-memory state for instant UI feedback
+    ref
+        .read(playbackStateNotifierProvider.notifier)
+        .updateCurrentSongFavorite(newFavorite);
+
+    // 2. Persist to database (fire-and-forget with error handling)
+    try {
+      await ref.read(libraryRepositoryProvider).toggleFavorite(song.id);
+    } catch (_) {
+      // Revert the in-memory state if the DB write failed
+      ref
+          .read(playbackStateNotifierProvider.notifier)
+          .updateCurrentSongFavorite(song.isFavorite);
+    }
   }
 
   Widget _buildProgressBar(

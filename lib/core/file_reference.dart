@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'package:saf/saf.dart';
 
+import 'package:saf/saf.dart';
 
 abstract class MusicFileReference {
   String get uri;

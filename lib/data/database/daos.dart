@@ -173,4 +173,7 @@ class LibraryDao extends DatabaseAccessor<SonoraDatabase>
 
   Future<List<SongEntity>> getFavorites() =>
       (select(songs)..where((t) => t.isFavorite.equals(true))).get();
+
+  Stream<List<SongEntity>> watchFavorites() =>
+      (select(songs)..where((t) => t.isFavorite.equals(true))).watch();
 }
