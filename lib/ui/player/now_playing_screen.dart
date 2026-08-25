@@ -8,6 +8,7 @@ import '../../data/providers/repository_providers.dart';
 import '../../services/audio_player_service.dart';
 import '../../theme/dimensions.dart';
 import '../common/artwork_widget.dart';
+import 'queue_bottom_sheet.dart';
 
 /// Now Playing screen — the full-screen music player.
 class NowPlayingScreen extends ConsumerWidget {
@@ -388,7 +389,17 @@ class NowPlayingScreen extends ConsumerWidget {
         children: [
           IconButton(
             icon: const Icon(Icons.queue_music_rounded),
-            onPressed: () {},
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                useRootNavigator: true,
+                isScrollControlled: true,
+                builder: (_) => const FractionallySizedBox(
+                  heightFactor: 0.85,
+                  child: QueueBottomSheet(),
+                ),
+              );
+            },
           ),
           IconButton(icon: const Icon(Icons.share_rounded), onPressed: () {}),
         ],

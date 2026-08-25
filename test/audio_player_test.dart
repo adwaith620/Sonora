@@ -65,10 +65,34 @@ void main() {
 
       // Remove song1 (before current)
       notifier.removeFromQueue(0);
-      final state = container.read(playbackStateNotifierProvider);
+      var state = container.read(playbackStateNotifierProvider);
       expect(state.queue.length, 2);
       expect(state.currentIndex, 0); // index shifted down
       expect(state.currentSong, song2);
+
+      // Remove the currently playing song
+      notifier.removeFromQueue(0);
+      state = container.read(playbackStateNotifierProvider);
+      expect(state.queue.length, 1);
+      expect(state.currentIndex, 0); // index stays clamped
+      expect(state.currentSong, song3);
+    });
+
+    test('reorderQueue moves items and adjusts index correctly', () {
+      final notifier = container.read(playbackStateNotifierProvider.notifier);
+      notifier.playQueue([song1, song2, song3], startIndex: 1); // playing song2
+
+      // Move song3 to front
+      notifier.reorderQueue(2, 0);
+      var state = container.read(playbackStateNotifierProvider);
+      expect(state.queue, [song3, song1, song2]);
+      expect(state.currentIndex, 2); // song2 moved from index 1 to 2
+
+      // Move currently playing song2 to middle
+      notifier.reorderQueue(2, 1);
+      state = container.read(playbackStateNotifierProvider);
+      expect(state.queue, [song3, song2, song1]);
+      expect(state.currentIndex, 1);
     });
 
     test('toggleShuffle maintains current song but randomizes rest', () {

@@ -67,10 +67,7 @@ void main() {
 
     test('Artist ID returns the correct songs', () async {
       await database.libraryDao.insertArtist(
-        ArtistsCompanion.insert(
-          id: 'artist1',
-          name: 'Test Artist',
-        ),
+        ArtistsCompanion.insert(id: 'artist1', name: 'Test Artist'),
       );
 
       await database.libraryDao.insertSong(
@@ -122,10 +119,7 @@ void main() {
 
     test('Existing favorite state is preserved', () async {
       await database.libraryDao.insertAlbum(
-        AlbumsCompanion.insert(
-          id: 'album1',
-          title: 'Test Album',
-        ),
+        AlbumsCompanion.insert(id: 'album1', title: 'Test Album'),
       );
 
       await database.libraryDao.insertSong(
