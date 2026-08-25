@@ -8,6 +8,7 @@ import '../../data/providers/repository_providers.dart';
 import '../../services/audio_player_service.dart';
 import '../../theme/dimensions.dart';
 import '../common/artwork_widget.dart';
+import 'audio_visualizer_widget.dart';
 import 'queue_bottom_sheet.dart';
 
 /// Now Playing screen — the full-screen music player.
@@ -133,6 +134,14 @@ class NowPlayingScreen extends ConsumerWidget {
           const Spacer(flex: 1),
           // Album artwork
           _buildArtwork(context, currentSong, 280),
+
+          // Visualizer
+          const SizedBox(height: Spacing.xl),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: Spacing.lg),
+            child: AudioVisualizerWidget(height: 32),
+          ),
+
           const Spacer(flex: 1),
           // Song info
           _buildSongInfo(context, currentSong, ref),
@@ -168,7 +177,11 @@ class NowPlayingScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildSongInfo(context, currentSong, ref),
-                const SizedBox(height: Spacing.xxl),
+
+                const SizedBox(height: Spacing.xl),
+                const AudioVisualizerWidget(height: 32),
+
+                const SizedBox(height: Spacing.xl),
                 _buildProgressBar(context, playbackState, ref),
                 const SizedBox(height: Spacing.xl),
                 _buildPlaybackControls(context, playbackState, ref),
