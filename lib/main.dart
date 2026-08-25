@@ -21,11 +21,18 @@ void main() async {
   // Desktop window configuration
   if (isDesktop) {
     await windowManager.ensureInitialized();
-    await windowManager.setTitle(kAppName);
-    await windowManager.setMinimumSize(const Size(400, 600));
-    await windowManager.setSize(const Size(1100, 750));
-    await windowManager.center();
-    await windowManager.show();
+    await windowManager.waitUntilReadyToShow(
+      const WindowOptions(
+        titleBarStyle: TitleBarStyle.hidden,
+        minimumSize: Size(400, 600),
+        size: Size(1100, 750),
+        center: true,
+        title: kAppName,
+      ),
+      () async {
+        await windowManager.show();
+      },
+    );
   }
 
   final session = await AudioSession.instance;

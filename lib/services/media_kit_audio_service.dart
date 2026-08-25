@@ -4,30 +4,35 @@ import 'package:media_kit/media_kit.dart';
 
 import '../data/models/song.dart';
 import '../data/providers/queue_provider.dart';
-import 'audio_handler.dart';
 import 'audio_player_service.dart';
+import 'audio_handler.dart';
+import 'windows_smtc_handler.dart';
 
 class MediaKitAudioService implements AudioPlayerService {
-  MediaKitAudioService(this._notifier, this._handler) {
+  MediaKitAudioService(this._notifier, this._handler, this._smtcHandler) {
     _player = Player();
     _handler?.audioService = this;
+    _smtcHandler?.audioService = this;
 
     _player.stream.playing.listen((isPlaying) {
       final newState = _notifier.currentState.copyWith(isPlaying: isPlaying);
       _notifier.updateState(newState);
       _handler?.broadcastState(newState);
+      _smtcHandler?.broadcastState(newState);
     });
 
     _player.stream.position.listen((position) {
       final newState = _notifier.currentState.copyWith(position: position);
       _notifier.updateState(newState);
       _handler?.broadcastState(newState);
+      _smtcHandler?.broadcastState(newState);
     });
 
     _player.stream.duration.listen((duration) {
       final newState = _notifier.currentState.copyWith(duration: duration);
       _notifier.updateState(newState);
       _handler?.broadcastState(newState);
+      _smtcHandler?.broadcastState(newState);
     });
 
     _player.stream.buffer.listen((buffer) {
@@ -36,18 +41,19 @@ class MediaKitAudioService implements AudioPlayerService {
       );
       _notifier.updateState(newState);
       _handler?.broadcastState(newState);
+      _smtcHandler?.broadcastState(newState);
     });
 
     _player.stream.volume.listen((volume) {
       final newState = _notifier.currentState.copyWith(volume: volume / 100.0);
       _notifier.updateState(newState);
-      // Volume changes don't usually need to be broadcast to OS media session in the same way
     });
 
     _player.stream.error.listen((error) {
       final newState = _notifier.currentState.copyWith(error: error);
       _notifier.updateState(newState);
       _handler?.broadcastState(newState);
+      _smtcHandler?.broadcastState(newState);
     });
 
     _player.stream.playlist.listen((playlist) {
@@ -59,12 +65,14 @@ class MediaKitAudioService implements AudioPlayerService {
         );
         _notifier.updateState(newState);
         _handler?.broadcastState(newState);
+        _smtcHandler?.broadcastState(newState);
       }
     });
   }
 
   final PlaybackStateNotifier _notifier;
   final SonoraAudioHandler? _handler;
+  final SonoraWindowsSMTCHandler? _smtcHandler;
   late final Player _player;
 
   @override

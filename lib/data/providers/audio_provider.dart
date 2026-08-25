@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/audio_handler.dart';
 import '../../services/audio_player_service.dart';
 import '../../services/media_kit_audio_service.dart';
+import '../../services/windows_smtc_handler.dart';
 import 'queue_provider.dart';
 
 /// Provider for the current playback state and queue logic.
@@ -20,12 +21,19 @@ final audioHandlerProvider = Provider<SonoraAudioHandler?>((ref) {
   return null; // Will be overridden in main() after initialization
 });
 
+final smtcHandlerProvider = Provider<SonoraWindowsSMTCHandler?>((ref) {
+  final handler = SonoraWindowsSMTCHandler();
+  ref.onDispose(() => handler.dispose());
+  return handler;
+});
+
 /// Provider for the audio player service.
 final audioPlayerServiceProvider = Provider<AudioPlayerService>((ref) {
   final notifier = ref.read(playbackStateNotifierProvider.notifier);
   final handler = ref.read(audioHandlerProvider);
+  final smtcHandler = ref.read(smtcHandlerProvider);
 
-  final service = MediaKitAudioService(notifier, handler);
+  final service = MediaKitAudioService(notifier, handler, smtcHandler);
 
   service.init();
 
