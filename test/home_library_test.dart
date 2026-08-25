@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sonora/data/database/database.dart';
@@ -20,52 +21,59 @@ void main() {
     await db.close();
   });
 
-  test('LibraryService returns recently added songs in correct order', () async {
-    await db.into(db.songs).insert(
-          SongsCompanion.insert(
-            id: '1',
-            title: 'First Song',
-            artistName: 'Artist 1',
-            durationMillis: 1000,
-            dateAdded: DateTime.now().subtract(const Duration(days: 2)),
-          ),
-        );
+  test(
+    'LibraryService returns recently added songs in correct order',
+    () async {
+      await db.into(db.songs).insert(
+            SongsCompanion.insert(
+              id: '1',
+              fileUri: 'file1',
+              title: 'First Song',
+              artistName: const Value('Artist 1'),
+              durationMillis: const Value(1000),
+              dateAdded: Value(DateTime.now().subtract(const Duration(days: 2))),
+            ),
+          );
 
-    await db.into(db.songs).insert(
-          SongsCompanion.insert(
-            id: '2',
-            title: 'Second Song',
-            artistName: 'Artist 2',
-            durationMillis: 2000,
-            dateAdded: DateTime.now(),
-          ),
-        );
+      await db.into(db.songs).insert(
+            SongsCompanion.insert(
+              id: '2',
+              fileUri: 'file2',
+              title: 'Second Song',
+              artistName: const Value('Artist 2'),
+              durationMillis: const Value(2000),
+              dateAdded: Value(DateTime.now()),
+            ),
+          );
 
-    final recentlyAdded = await libraryService.getRecentlyAdded(limit: 10);
-    
-    expect(recentlyAdded.length, 2);
-    expect(recentlyAdded.first.title, 'Second Song');
-    expect(recentlyAdded.last.title, 'First Song');
-  });
+      final recentlyAdded = await libraryService.getRecentlyAdded(limit: 10);
+
+      expect(recentlyAdded.length, 2);
+      expect(recentlyAdded.first.title, 'Second Song');
+      expect(recentlyAdded.last.title, 'First Song');
+    },
+  );
 
   test('LibraryService updates recently played when recordPlay is called', () async {
     await db.into(db.songs).insert(
           SongsCompanion.insert(
             id: '1',
+            fileUri: 'file1_rp',
             title: 'Song 1',
-            artistName: 'Artist 1',
-            durationMillis: 1000,
-            dateAdded: DateTime.now(),
+            artistName: const Value('Artist 1'),
+            durationMillis: const Value(1000),
+            dateAdded: Value(DateTime.now()),
           ),
         );
 
     await db.into(db.songs).insert(
           SongsCompanion.insert(
             id: '2',
+            fileUri: 'file2_rp',
             title: 'Song 2',
-            artistName: 'Artist 2',
-            durationMillis: 2000,
-            dateAdded: DateTime.now(),
+            artistName: const Value('Artist 2'),
+            durationMillis: const Value(2000),
+            dateAdded: Value(DateTime.now()),
           ),
         );
 
@@ -96,26 +104,32 @@ void main() {
     await db.into(db.songs).insert(
           SongsCompanion.insert(
             id: '2',
+            fileUri: 'file2_sort',
             title: 'B Song',
-            artistName: 'Z Artist',
-            durationMillis: 1000,
-            dateAdded: DateTime.now(),
+            artistName: const Value('Z Artist'),
+            durationMillis: const Value(1000),
+            dateAdded: Value(DateTime.now()),
           ),
         );
     await db.into(db.songs).insert(
           SongsCompanion.insert(
             id: '1',
+            fileUri: 'file1_sort',
             title: 'A Song',
-            artistName: 'Y Artist',
-            durationMillis: 1000,
-            dateAdded: DateTime.now(),
+            artistName: const Value('Y Artist'),
+            durationMillis: const Value(1000),
+            dateAdded: Value(DateTime.now()),
           ),
         );
-        
-    final byTitle = await libraryService.getAllSongs(sortBy: SongSortField.title);
+
+    final byTitle = await libraryService.getAllSongs(
+      sortBy: SongSortField.title,
+    );
     expect(byTitle.first.title, 'A Song');
-    
-    final byArtist = await libraryService.getAllSongs(sortBy: SongSortField.artist);
+
+    final byArtist = await libraryService.getAllSongs(
+      sortBy: SongSortField.artist,
+    );
     expect(byArtist.first.title, 'A Song'); // Y Artist is before Z Artist
   });
 }

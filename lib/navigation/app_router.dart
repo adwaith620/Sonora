@@ -8,6 +8,7 @@ import '../ui/artists/artists_screen.dart';
 import '../ui/favorites/favorites_screen.dart';
 import '../ui/folders/folders_screen.dart';
 import '../ui/home/home_screen.dart';
+import '../ui/playlists/playlist_detail_screen.dart';
 import '../ui/playlists/playlists_screen.dart';
 import '../ui/search/search_screen.dart';
 import '../ui/settings/settings_screen.dart';
@@ -109,6 +110,14 @@ GoRouter createRouter() {
               GoRoute(
                 path: Routes.playlists,
                 builder: (context, state) => const PlaylistsScreen(),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) => PlaylistDetailScreen(
+                      playlistId: state.pathParameters['id']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

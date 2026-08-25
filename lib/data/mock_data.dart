@@ -197,28 +197,5 @@ const List<Artist> mockArtists = [
   Artist(id: 'ar5', name: 'Timber & Moss', songCount: 2, albumCount: 1),
 ];
 
-/// Mock playlists for UI development.
-final List<Playlist> mockPlaylists = [
-  Playlist(
-    id: 'p_fav',
-    name: 'Favorites',
-    songIds: const ['s1', 's3', 's5', 's9'],
-    isFavorites: true,
-    createdAt: DateTime(2024, 1, 1),
-  ),
-  Playlist(
-    id: 'p1',
-    name: 'Chill Vibes',
-    songIds: const ['s1', 's5', 's6', 's10'],
-    createdAt: DateTime(2024, 5, 10),
-  ),
-  Playlist(
-    id: 'p2',
-    name: 'Night Drive',
-    songIds: const ['s3', 's4', 's7', 's8'],
-    createdAt: DateTime(2024, 6, 20),
-  ),
-];
-
 /// The currently "playing" mock song for the mini player / Now Playing preview.
 final Song mockCurrentSong = mockSongs[0];

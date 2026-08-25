@@ -47,6 +47,27 @@ class DriftPlaylistService implements PlaylistService {
   }
 
   @override
+  Stream<List<Playlist>> watchAllPlaylists() {
+    return _db.libraryDao.watchAllPlaylists().asyncMap((entities) async {
+      final List<Playlist> results = [];
+      for (var entity in entities) {
+        final songs = await _db.libraryDao.getSongsForPlaylist(entity.id);
+        String? artworkPath;
+        if (songs.isNotEmpty) {
+          artworkPath = songs.first.artworkPath;
+        }
+        results.add(
+          entity.toDomain(
+            songs.map((s) => s.id).toList(),
+            artworkPath: artworkPath,
+          ),
+        );
+      }
+      return results;
+    });
+  }
+
+  @override
   Future<Playlist?> getPlaylist(String id) async {
     final entities = await _db.libraryDao.getAllPlaylists();
     try {
@@ -59,6 +80,18 @@ class DriftPlaylistService implements PlaylistService {
     } catch (e) {
       return null;
     }
+  }
+
+  @override
+  Stream<Playlist?> watchPlaylist(String id) {
+    return _db.libraryDao.watchPlaylist(id).asyncMap((entity) async {
+      if (entity == null) return null;
+      final songs = await _db.libraryDao.getSongsForPlaylist(id);
+      return entity.toDomain(
+        songs.map((s) => s.id).toList(),
+        artworkPath: songs.isNotEmpty ? songs.first.artworkPath : null,
+      );
+    });
   }
 
   @override
@@ -139,6 +172,13 @@ class DriftPlaylistService implements PlaylistService {
   Future<List<Song>> getPlaylistSongs(String playlistId) async {
     final entities = await _db.libraryDao.getSongsForPlaylist(playlistId);
     return entities.map((e) => e.toDomain()).toList();
+  }
+
+  @override
+  Stream<List<Song>> watchPlaylistSongs(String playlistId) {
+    return _db.libraryDao
+        .watchSongsForPlaylist(playlistId)
+        .map((entities) => entities.map((e) => e.toDomain()).toList());
   }
 
   @override

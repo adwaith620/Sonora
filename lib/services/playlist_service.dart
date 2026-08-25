@@ -11,8 +11,14 @@ abstract class PlaylistService {
   /// Get all playlists.
   Future<List<Playlist>> getAllPlaylists();
 
+  /// Watch all playlists as a stream.
+  Stream<List<Playlist>> watchAllPlaylists();
+
   /// Get a playlist by ID.
   Future<Playlist?> getPlaylist(String id);
+
+  /// Watch a single playlist as a stream.
+  Stream<Playlist?> watchPlaylist(String id);
 
   /// Create a new playlist.
   Future<Playlist> createPlaylist(String name);
@@ -34,6 +40,9 @@ abstract class PlaylistService {
 
   /// Get songs in a playlist.
   Future<List<Song>> getPlaylistSongs(String playlistId);
+
+  /// Watch songs in a playlist as a stream.
+  Stream<List<Song>> watchPlaylistSongs(String playlistId);
 
   /// Get the favorites playlist (auto-created).
   Future<Playlist> getFavoritesPlaylist();

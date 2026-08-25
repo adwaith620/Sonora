@@ -4,6 +4,7 @@ import '../../core/extensions.dart';
 import '../../data/models/song.dart';
 import '../../theme/dimensions.dart';
 import 'artwork_widget.dart';
+import 'song_context_menu.dart';
 
 /// A compact song list tile inspired by OpenTune's song item.
 ///
@@ -105,11 +106,7 @@ class SongListTile extends StatelessWidget {
               trailing!,
             ] else ...[
               const SizedBox(width: Spacing.xs),
-              IconButton(
-                icon: const Icon(Icons.more_vert, size: 20),
-                onPressed: () {},
-                visualDensity: VisualDensity.compact,
-              ),
+              SongContextMenu(song: song),
             ],
           ],
         ),

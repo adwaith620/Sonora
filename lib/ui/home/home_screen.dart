@@ -70,7 +70,11 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildAsyncSongList(BuildContext context, WidgetRef ref, AsyncValue<List<Song>> asyncData) {
+  Widget _buildAsyncSongList(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue<List<Song>> asyncData,
+  ) {
     return asyncData.when(
       data: (songs) {
         if (songs.isEmpty) {

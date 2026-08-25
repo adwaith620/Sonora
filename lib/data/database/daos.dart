@@ -137,6 +137,11 @@ class LibraryDao extends DatabaseAccessor<SonoraDatabase>
   // === Playlists ===
   Future<List<PlaylistEntity>> getAllPlaylists() => select(playlists).get();
 
+  Stream<List<PlaylistEntity>> watchAllPlaylists() => select(playlists).watch();
+
+  Stream<PlaylistEntity?> watchPlaylist(String id) =>
+      (select(playlists)..where((t) => t.id.equals(id))).watchSingleOrNull();
+
   Future<void> insertPlaylist(Insertable<PlaylistEntity> playlist) =>
       into(playlists).insert(playlist, mode: InsertMode.insertOrReplace);
 
@@ -162,6 +167,19 @@ class LibraryDao extends DatabaseAccessor<SonoraDatabase>
           ..orderBy([OrderingTerm.asc(playlistSongs.position)]);
 
     return query.map((row) => row.readTable(songs)).get();
+  }
+
+  Stream<List<SongEntity>> watchSongsForPlaylist(String playlistId) {
+    final query =
+        select(songs).join([
+            innerJoin(playlistSongs, playlistSongs.songId.equalsExp(songs.id)),
+          ])
+          ..where(playlistSongs.playlistId.equals(playlistId))
+          ..orderBy([OrderingTerm.asc(playlistSongs.position)]);
+
+    return query.watch().map(
+      (rows) => rows.map((row) => row.readTable(songs)).toList(),
+    );
   }
 
   // === Generic queries ===
