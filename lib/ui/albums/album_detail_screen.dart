@@ -1,82 +1,131 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/constants.dart';
 import '../../core/extensions.dart';
-import '../../data/mock_data.dart';
 import '../../data/models/album.dart';
+import '../../data/models/song.dart';
+import '../../data/providers/audio_provider.dart';
+import '../../data/providers/repository_providers.dart';
 import '../../theme/dimensions.dart';
 import '../common/artwork_widget.dart';
 import '../common/song_list_tile.dart';
 
+final albumDetailProvider =
+    FutureProvider.family<({Album? album, List<Song> songs}), String>((
+      ref,
+      id,
+    ) async {
+      final db = ref.watch(libraryRepositoryProvider);
+      final album = await db.getAlbumById(id);
+      final songs = await db.getSongsForAlbum(id);
+      return (album: album, songs: songs);
+    });
+
 /// Album detail screen — shows album artwork, metadata, and track list.
-class AlbumDetailScreen extends StatelessWidget {
+class AlbumDetailScreen extends ConsumerWidget {
   const AlbumDetailScreen({super.key, required this.albumId});
 
   final String albumId;
 
   @override
-  Widget build(BuildContext context) {
-    // In Phase 1, find album from mock data
-    final album = mockAlbums.firstWhere(
-      (a) => a.id == albumId,
-      orElse: () => mockAlbums.first,
-    );
-    final albumSongs = mockSongs.where((s) => s.album == album.name).toList();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final audioService = ref.read(audioPlayerServiceProvider);
+    final detailAsync = ref.watch(albumDetailProvider(albumId));
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          // Collapsing app bar with artwork
-          SliverAppBar(
-            expandedHeight: 340,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              background: _AlbumHeader(album: album),
-            ),
-          ),
+      body: detailAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(child: Text('Error: $err')),
+        data: (data) {
+          final album = data.album;
+          final albumSongs = data.songs;
 
-          // Action buttons
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: Spacing.lg,
-                vertical: Spacing.md,
+          if (album == null) {
+            return CustomScrollView(
+              slivers: [
+                const SliverAppBar(pinned: true),
+                const SliverFillRemaining(
+                  child: Center(child: Text('Album not found')),
+                ),
+              ],
+            );
+          }
+
+          return CustomScrollView(
+            slivers: [
+              // Collapsing app bar with artwork
+              SliverAppBar(
+                expandedHeight: 340,
+                pinned: true,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: _AlbumHeader(album: album),
+                ),
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.play_arrow_rounded),
-                      label: const Text('Play'),
-                    ),
+
+              // Action buttons
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Spacing.lg,
+                    vertical: Spacing.md,
                   ),
-                  const SizedBox(width: Spacing.md),
-                  Expanded(
-                    child: FilledButton.tonalIcon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.shuffle_rounded),
-                      label: const Text('Shuffle'),
-                    ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: albumSongs.isEmpty
+                              ? null
+                              : () {
+                                  audioService.playQueue(albumSongs);
+                                },
+                          icon: const Icon(Icons.play_arrow_rounded),
+                          label: const Text('Play'),
+                        ),
+                      ),
+                      const SizedBox(width: Spacing.md),
+                      Expanded(
+                        child: FilledButton.tonalIcon(
+                          onPressed: albumSongs.isEmpty
+                              ? null
+                              : () {
+                                  audioService.playQueue(albumSongs);
+                                  audioService.toggleShuffle();
+                                },
+                          icon: const Icon(Icons.shuffle_rounded),
+                          label: const Text('Shuffle'),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
 
-          // Track list
-          SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              return SongListTile(
-                song: albumSongs[index],
-                showTrackNumber: true,
-                onTap: () {},
-              );
-            }, childCount: albumSongs.length),
-          ),
+              // Track list
+              if (albumSongs.isEmpty)
+                const SliverFillRemaining(
+                  child: Center(child: Text('No tracks found for this album.')),
+                )
+              else
+                SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    return SongListTile(
+                      song: albumSongs[index],
+                      showTrackNumber: true,
+                      onTap: () {
+                        audioService.playQueue(albumSongs, startIndex: index);
+                      },
+                    );
+                  }, childCount: albumSongs.length),
+                ),
 
-          // Bottom spacing
-          const SliverToBoxAdapter(child: SizedBox(height: 120)),
-        ],
+              // Bottom spacing
+              const SliverToBoxAdapter(
+                child: SizedBox(height: kMiniPlayerHeight + Spacing.md),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

@@ -106,6 +106,9 @@ class LibraryDao extends DatabaseAccessor<SonoraDatabase>
   Future<List<SongEntity>> getSongsForAlbum(String albumId) =>
       (select(songs)..where((t) => t.albumId.equals(albumId))).get();
 
+  Future<List<AlbumEntity>> getAlbumsForArtist(String artistId) =>
+      (select(albums)..where((t) => t.artistId.equals(artistId))).get();
+
   // === Artists ===
   Future<List<ArtistEntity>> getAllArtists() => select(artists).get();
 

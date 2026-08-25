@@ -59,11 +59,20 @@ abstract class LibraryService {
   /// Get all albums.
   Future<List<Album>> getAllAlbums();
 
+  /// Get album by ID.
+  Future<Album?> getAlbumById(String id);
+
   /// Get all artists.
   Future<List<Artist>> getAllArtists();
 
+  /// Get artist by ID.
+  Future<Artist?> getArtistById(String id);
+
   /// Get songs for a specific album.
   Future<List<Song>> getSongsForAlbum(String albumId);
+
+  /// Get albums for a specific artist.
+  Future<List<Album>> getAlbumsForArtist(String artistId);
 
   /// Get songs for a specific artist.
   Future<List<Song>> getSongsForArtist(String artistId);

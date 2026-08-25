@@ -55,7 +55,13 @@ class AlbumsScreen extends ConsumerWidget {
                 ),
                 itemCount: albums.length,
                 itemBuilder: (context, index) {
-                  return AlbumGridTile(album: albums[index], onTap: () {});
+                  return AlbumGridTile(
+                    album: albums[index],
+                    onTap: () {
+                      Navigator.of(context)
+                          .pushNamed('/album', arguments: albums[index].id);
+                    },
+                  );
                 },
               );
             },

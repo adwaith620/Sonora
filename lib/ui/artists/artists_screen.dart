@@ -55,7 +55,10 @@ class ArtistsScreen extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () {},
+                onTap: () {
+                  Navigator.of(context)
+                      .pushNamed('/artist', arguments: artist.id);
+                },
               );
             },
           );

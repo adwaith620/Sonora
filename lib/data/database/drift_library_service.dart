@@ -96,14 +96,32 @@ class DriftLibraryService implements LibraryService {
   }
 
   @override
+  Future<Album?> getAlbumById(String id) async {
+    final entity = await _db.libraryDao.getAlbumById(id);
+    return entity?.toDomain();
+  }
+
+  @override
   Future<List<Artist>> getAllArtists() async {
     final entities = await _db.libraryDao.getAllArtists();
     return entities.map((e) => e.toDomain()).toList();
   }
 
   @override
+  Future<Artist?> getArtistById(String id) async {
+    final entity = await _db.libraryDao.getArtistById(id);
+    return entity?.toDomain();
+  }
+
+  @override
   Future<List<Song>> getSongsForAlbum(String albumId) async {
     final entities = await _db.libraryDao.getSongsForAlbum(albumId);
+    return entities.map((e) => e.toDomain()).toList();
+  }
+
+  @override
+  Future<List<Album>> getAlbumsForArtist(String artistId) async {
+    final entities = await _db.libraryDao.getAlbumsForArtist(artistId);
     return entities.map((e) => e.toDomain()).toList();
   }
 
