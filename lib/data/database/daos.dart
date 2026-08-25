@@ -83,6 +83,8 @@ class LibraryDao extends DatabaseAccessor<SonoraDatabase>
   // === Albums ===
   Future<List<AlbumEntity>> getAllAlbums() => select(albums).get();
 
+  Stream<List<AlbumEntity>> watchAllAlbums() => select(albums).watch();
+
   Future<AlbumEntity?> getAlbumById(String id) =>
       (select(albums)..where((t) => t.id.equals(id))).getSingleOrNull();
 
@@ -111,6 +113,8 @@ class LibraryDao extends DatabaseAccessor<SonoraDatabase>
 
   // === Artists ===
   Future<List<ArtistEntity>> getAllArtists() => select(artists).get();
+
+  Stream<List<ArtistEntity>> watchAllArtists() => select(artists).watch();
 
   Future<ArtistEntity?> getArtistById(String id) =>
       (select(artists)..where((t) => t.id.equals(id))).getSingleOrNull();
@@ -168,11 +172,24 @@ class LibraryDao extends DatabaseAccessor<SonoraDatabase>
             ..limit(limit))
           .get();
 
+  Stream<List<SongEntity>> watchRecentlyPlayed({int limit = 20}) =>
+      (select(songs)
+            ..where((t) => t.lastPlayedAt.isNotNull())
+            ..orderBy([(t) => OrderingTerm.desc(t.lastPlayedAt)])
+            ..limit(limit))
+          .watch();
+
   Future<List<SongEntity>> getRecentlyAdded({int limit = 20}) =>
       (select(songs)
             ..orderBy([(t) => OrderingTerm.desc(t.dateAdded)])
             ..limit(limit))
           .get();
+
+  Stream<List<SongEntity>> watchRecentlyAdded({int limit = 20}) =>
+      (select(songs)
+            ..orderBy([(t) => OrderingTerm.desc(t.dateAdded)])
+            ..limit(limit))
+          .watch();
 
   Future<List<SongEntity>> getFavorites() =>
       (select(songs)..where((t) => t.isFavorite.equals(true))).get();

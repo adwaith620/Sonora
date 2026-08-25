@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/models/song.dart';
 import '../../services/audio_player_service.dart';
+import 'repository_providers.dart';
 
 class PlaybackStateNotifier extends Notifier<PlaybackState> {
   List<Song> _originalQueue = [];
@@ -16,7 +17,14 @@ class PlaybackStateNotifier extends Notifier<PlaybackState> {
   PlaybackState get currentState => state;
 
   void updateState(PlaybackState newState) {
+    final oldSong = state.currentSong;
     state = newState;
+
+    // Track recently played
+    if (newState.currentSong != null &&
+        newState.currentSong?.id != oldSong?.id) {
+      ref.read(libraryRepositoryProvider).recordPlay(newState.currentSong!.id);
+    }
   }
 
   /// Updates the favorite status of the current song in-memory.

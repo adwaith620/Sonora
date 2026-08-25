@@ -138,9 +138,37 @@ class DriftLibraryService implements LibraryService {
   }
 
   @override
+  Stream<List<Song>> watchRecentlyPlayed({int limit = 20}) {
+    return _db.libraryDao
+        .watchRecentlyPlayed(limit: limit)
+        .map((entities) => entities.map((e) => e.toDomain()).toList());
+  }
+
+  @override
   Future<List<Song>> getRecentlyAdded({int limit = 20}) async {
     final entities = await _db.libraryDao.getRecentlyAdded(limit: limit);
     return entities.map((e) => e.toDomain()).toList();
+  }
+
+  @override
+  Stream<List<Song>> watchRecentlyAdded({int limit = 20}) {
+    return _db.libraryDao
+        .watchRecentlyAdded(limit: limit)
+        .map((entities) => entities.map((e) => e.toDomain()).toList());
+  }
+
+  @override
+  Stream<List<Album>> watchAllAlbums() {
+    return _db.libraryDao.watchAllAlbums().map(
+      (entities) => entities.map((e) => e.toDomain()).toList(),
+    );
+  }
+
+  @override
+  Stream<List<Artist>> watchAllArtists() {
+    return _db.libraryDao.watchAllArtists().map(
+      (entities) => entities.map((e) => e.toDomain()).toList(),
+    );
   }
 
   @override

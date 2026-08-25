@@ -80,14 +80,26 @@ abstract class LibraryService {
   /// Get recently played songs.
   Future<List<Song>> getRecentlyPlayed({int limit = 20});
 
+  /// Watch recently played songs.
+  Stream<List<Song>> watchRecentlyPlayed({int limit = 20});
+
   /// Get recently added songs.
   Future<List<Song>> getRecentlyAdded({int limit = 20});
+
+  /// Watch recently added songs.
+  Stream<List<Song>> watchRecentlyAdded({int limit = 20});
 
   /// Get favorite songs.
   Future<List<Song>> getFavorites();
 
   /// Watch favorite songs as a stream.
   Stream<List<Song>> watchFavorites();
+
+  /// Watch all albums.
+  Stream<List<Album>> watchAllAlbums();
+
+  /// Watch all artists.
+  Stream<List<Artist>> watchAllArtists();
 
   /// Toggle favorite status for a song.
   Future<void> toggleFavorite(String songId);
