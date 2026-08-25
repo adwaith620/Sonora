@@ -12,13 +12,21 @@ import 'tables.dart';
 part 'database.g.dart';
 
 @DriftDatabase(
-  tables: [Artists, Albums, Songs, Playlists, PlaylistSongs, LibraryLocations],
+  tables: [
+    Artists,
+    Albums,
+    Songs,
+    Playlists,
+    PlaylistSongs,
+    LibraryLocations,
+    SearchHistory,
+  ],
 )
 class SonoraDatabase extends _$SonoraDatabase {
   SonoraDatabase([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   // DAOs
   LibraryDao get libraryDao => LibraryDao(this);
@@ -36,6 +44,9 @@ class SonoraDatabase extends _$SonoraDatabase {
           'folder_path',
           libraryLocations.folderUri,
         );
+      }
+      if (from < 3) {
+        await m.createTable(searchHistory);
       }
     },
     beforeOpen: (details) async {

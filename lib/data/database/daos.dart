@@ -6,7 +6,7 @@ import 'tables.dart';
 part 'daos.g.dart';
 
 @DriftAccessor(
-  tables: [Songs, Albums, Artists, Playlists, PlaylistSongs, LibraryLocations],
+  tables: [Songs, Albums, Artists, Playlists, PlaylistSongs, LibraryLocations, SearchHistory],
 )
 class LibraryDao extends DatabaseAccessor<SonoraDatabase>
     with _$LibraryDaoMixin {
@@ -214,4 +214,60 @@ class LibraryDao extends DatabaseAccessor<SonoraDatabase>
 
   Stream<List<SongEntity>> watchFavorites() =>
       (select(songs)..where((t) => t.isFavorite.equals(true))).watch();
+
+  // === Search ===
+  Future<List<SongEntity>> searchSongs(String query) {
+    return (select(songs)
+          ..where(
+            (t) =>
+                t.title.like('%$query%') |
+                t.artistName.like('%$query%') |
+                t.albumName.like('%$query%'),
+          )
+          ..limit(50))
+        .get();
+  }
+
+  Future<List<AlbumEntity>> searchAlbums(String query) {
+    return (select(albums)
+          ..where((t) => t.title.like('%$query%') | t.albumArtist.like('%$query%'))
+          ..limit(20))
+        .get();
+  }
+
+  Future<List<ArtistEntity>> searchArtists(String query) {
+    return (select(artists)
+          ..where((t) => t.name.like('%$query%'))
+          ..limit(20))
+        .get();
+  }
+
+  // === Search History ===
+  Stream<List<SearchHistoryEntity>> watchSearchHistory() {
+    return (select(searchHistory)
+          ..orderBy([(t) => OrderingTerm.desc(t.timestamp)])
+          ..limit(20))
+        .watch();
+  }
+
+  Future<void> addSearchHistory(String query) async {
+    final cleanQuery = query.trim();
+    if (cleanQuery.isEmpty) return;
+
+    await into(searchHistory).insert(
+      SearchHistoryCompanion.insert(
+        query: cleanQuery,
+        timestamp: Value(DateTime.now()),
+      ),
+      mode: InsertMode.insertOrReplace,
+    );
+  }
+
+  Future<void> removeSearchHistory(String query) async {
+    await (delete(searchHistory)..where((t) => t.query.equals(query))).go();
+  }
+
+  Future<void> clearSearchHistory() async {
+    await delete(searchHistory).go();
+  }
 }

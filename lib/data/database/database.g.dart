@@ -2591,6 +2591,221 @@ class LibraryLocationsCompanion extends UpdateCompanion<LibraryLocationEntity> {
   }
 }
 
+class $SearchHistoryTable extends SearchHistory
+    with TableInfo<$SearchHistoryTable, SearchHistoryEntity> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SearchHistoryTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _queryMeta = const VerificationMeta('query');
+  @override
+  late final GeneratedColumn<String> query = GeneratedColumn<String>(
+    'query',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timestampMeta = const VerificationMeta(
+    'timestamp',
+  );
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+    'timestamp',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [query, timestamp];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'search_history';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SearchHistoryEntity> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('query')) {
+      context.handle(
+        _queryMeta,
+        query.isAcceptableOrUnknown(data['query']!, _queryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_queryMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(
+        _timestampMeta,
+        timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {query};
+  @override
+  SearchHistoryEntity map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SearchHistoryEntity(
+      query: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}query'],
+      )!,
+      timestamp: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}timestamp'],
+      )!,
+    );
+  }
+
+  @override
+  $SearchHistoryTable createAlias(String alias) {
+    return $SearchHistoryTable(attachedDatabase, alias);
+  }
+}
+
+class SearchHistoryEntity extends DataClass
+    implements Insertable<SearchHistoryEntity> {
+  final String query;
+  final DateTime timestamp;
+  const SearchHistoryEntity({required this.query, required this.timestamp});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['query'] = Variable<String>(query);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    return map;
+  }
+
+  SearchHistoryCompanion toCompanion(bool nullToAbsent) {
+    return SearchHistoryCompanion(
+      query: Value(query),
+      timestamp: Value(timestamp),
+    );
+  }
+
+  factory SearchHistoryEntity.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SearchHistoryEntity(
+      query: serializer.fromJson<String>(json['query']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'query': serializer.toJson<String>(query),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+    };
+  }
+
+  SearchHistoryEntity copyWith({String? query, DateTime? timestamp}) =>
+      SearchHistoryEntity(
+        query: query ?? this.query,
+        timestamp: timestamp ?? this.timestamp,
+      );
+  SearchHistoryEntity copyWithCompanion(SearchHistoryCompanion data) {
+    return SearchHistoryEntity(
+      query: data.query.present ? data.query.value : this.query,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SearchHistoryEntity(')
+          ..write('query: $query, ')
+          ..write('timestamp: $timestamp')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(query, timestamp);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SearchHistoryEntity &&
+          other.query == this.query &&
+          other.timestamp == this.timestamp);
+}
+
+class SearchHistoryCompanion extends UpdateCompanion<SearchHistoryEntity> {
+  final Value<String> query;
+  final Value<DateTime> timestamp;
+  final Value<int> rowid;
+  const SearchHistoryCompanion({
+    this.query = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SearchHistoryCompanion.insert({
+    required String query,
+    this.timestamp = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : query = Value(query);
+  static Insertable<SearchHistoryEntity> custom({
+    Expression<String>? query,
+    Expression<DateTime>? timestamp,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (query != null) 'query': query,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SearchHistoryCompanion copyWith({
+    Value<String>? query,
+    Value<DateTime>? timestamp,
+    Value<int>? rowid,
+  }) {
+    return SearchHistoryCompanion(
+      query: query ?? this.query,
+      timestamp: timestamp ?? this.timestamp,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (query.present) {
+      map['query'] = Variable<String>(query.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SearchHistoryCompanion(')
+          ..write('query: $query, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$SonoraDatabase extends GeneratedDatabase {
   _$SonoraDatabase(QueryExecutor e) : super(e);
   $SonoraDatabaseManager get managers => $SonoraDatabaseManager(this);
@@ -2602,6 +2817,7 @@ abstract class _$SonoraDatabase extends GeneratedDatabase {
   late final $LibraryLocationsTable libraryLocations = $LibraryLocationsTable(
     this,
   );
+  late final $SearchHistoryTable searchHistory = $SearchHistoryTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2613,6 +2829,7 @@ abstract class _$SonoraDatabase extends GeneratedDatabase {
     playlists,
     playlistSongs,
     libraryLocations,
+    searchHistory,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -5004,6 +5221,159 @@ typedef $$LibraryLocationsTableProcessedTableManager =
       LibraryLocationEntity,
       PrefetchHooks Function()
     >;
+typedef $$SearchHistoryTableCreateCompanionBuilder =
+    SearchHistoryCompanion Function({
+      required String query,
+      Value<DateTime> timestamp,
+      Value<int> rowid,
+    });
+typedef $$SearchHistoryTableUpdateCompanionBuilder =
+    SearchHistoryCompanion Function({
+      Value<String> query,
+      Value<DateTime> timestamp,
+      Value<int> rowid,
+    });
+
+class $$SearchHistoryTableFilterComposer
+    extends Composer<_$SonoraDatabase, $SearchHistoryTable> {
+  $$SearchHistoryTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get query => $composableBuilder(
+    column: $table.query,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SearchHistoryTableOrderingComposer
+    extends Composer<_$SonoraDatabase, $SearchHistoryTable> {
+  $$SearchHistoryTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get query => $composableBuilder(
+    column: $table.query,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SearchHistoryTableAnnotationComposer
+    extends Composer<_$SonoraDatabase, $SearchHistoryTable> {
+  $$SearchHistoryTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get query =>
+      $composableBuilder(column: $table.query, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+}
+
+class $$SearchHistoryTableTableManager
+    extends
+        RootTableManager<
+          _$SonoraDatabase,
+          $SearchHistoryTable,
+          SearchHistoryEntity,
+          $$SearchHistoryTableFilterComposer,
+          $$SearchHistoryTableOrderingComposer,
+          $$SearchHistoryTableAnnotationComposer,
+          $$SearchHistoryTableCreateCompanionBuilder,
+          $$SearchHistoryTableUpdateCompanionBuilder,
+          (
+            SearchHistoryEntity,
+            BaseReferences<
+              _$SonoraDatabase,
+              $SearchHistoryTable,
+              SearchHistoryEntity
+            >,
+          ),
+          SearchHistoryEntity,
+          PrefetchHooks Function()
+        > {
+  $$SearchHistoryTableTableManager(
+    _$SonoraDatabase db,
+    $SearchHistoryTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SearchHistoryTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SearchHistoryTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SearchHistoryTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> query = const Value.absent(),
+                Value<DateTime> timestamp = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SearchHistoryCompanion(
+                query: query,
+                timestamp: timestamp,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String query,
+                Value<DateTime> timestamp = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SearchHistoryCompanion.insert(
+                query: query,
+                timestamp: timestamp,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SearchHistoryTableProcessedTableManager =
+    ProcessedTableManager<
+      _$SonoraDatabase,
+      $SearchHistoryTable,
+      SearchHistoryEntity,
+      $$SearchHistoryTableFilterComposer,
+      $$SearchHistoryTableOrderingComposer,
+      $$SearchHistoryTableAnnotationComposer,
+      $$SearchHistoryTableCreateCompanionBuilder,
+      $$SearchHistoryTableUpdateCompanionBuilder,
+      (
+        SearchHistoryEntity,
+        BaseReferences<
+          _$SonoraDatabase,
+          $SearchHistoryTable,
+          SearchHistoryEntity
+        >,
+      ),
+      SearchHistoryEntity,
+      PrefetchHooks Function()
+    >;
 
 class $SonoraDatabaseManager {
   final _$SonoraDatabase _db;
@@ -5020,4 +5390,6 @@ class $SonoraDatabaseManager {
       $$PlaylistSongsTableTableManager(_db, _db.playlistSongs);
   $$LibraryLocationsTableTableManager get libraryLocations =>
       $$LibraryLocationsTableTableManager(_db, _db.libraryLocations);
+  $$SearchHistoryTableTableManager get searchHistory =>
+      $$SearchHistoryTableTableManager(_db, _db.searchHistory);
 }

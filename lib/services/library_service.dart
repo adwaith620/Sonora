@@ -113,6 +113,19 @@ abstract class LibraryService {
   /// Get total counts for the library.
   Future<LibraryCounts> getCounts();
 
+  // === Search History ===
+  /// Watch search history
+  Stream<List<String>> watchSearchHistory();
+
+  /// Save a search query to history
+  Future<void> saveSearchQuery(String query);
+
+  /// Delete a search query from history
+  Future<void> removeSearchQuery(String query);
+
+  /// Clear all search history
+  Future<void> clearSearchHistory();
+
   /// Dispose resources.
   Future<void> dispose();
 }

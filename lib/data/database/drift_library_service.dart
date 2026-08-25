@@ -196,37 +196,40 @@ class DriftLibraryService implements LibraryService {
 
   @override
   Future<LibrarySearchResult> search(String query) async {
-    // For Phase 2, naive local filtering (could be improved with FTS later)
     final q = query.toLowerCase();
 
-    final allSongs = await _db.libraryDao.getAllSongs();
-    final allAlbums = await _db.libraryDao.getAllAlbums();
-    final allArtists = await _db.libraryDao.getAllArtists();
-
-    final matchingSongs = allSongs
-        .where(
-          (s) =>
-              s.title.toLowerCase().contains(q) ||
-              s.artistName.toLowerCase().contains(q),
-        )
-        .map((e) => e.toDomain())
-        .toList();
-
-    final matchingAlbums = allAlbums
-        .where((a) => a.title.toLowerCase().contains(q))
-        .map((e) => e.toDomain())
-        .toList();
-
-    final matchingArtists = allArtists
-        .where((a) => a.name.toLowerCase().contains(q))
-        .map((e) => e.toDomain())
-        .toList();
+    final matchingSongs = await _db.libraryDao.searchSongs(q);
+    final matchingAlbums = await _db.libraryDao.searchAlbums(q);
+    final matchingArtists = await _db.libraryDao.searchArtists(q);
 
     return LibrarySearchResult(
-      songs: matchingSongs,
-      albums: matchingAlbums,
-      artists: matchingArtists,
+      songs: matchingSongs.map((e) => e.toDomain()).toList(),
+      albums: matchingAlbums.map((e) => e.toDomain()).toList(),
+      artists: matchingArtists.map((e) => e.toDomain()).toList(),
     );
+  }
+
+  // === Search History ===
+  @override
+  Stream<List<String>> watchSearchHistory() {
+    return _db.libraryDao.watchSearchHistory().map(
+          (list) => list.map((e) => e.query).toList(),
+        );
+  }
+
+  @override
+  Future<void> saveSearchQuery(String query) async {
+    await _db.libraryDao.addSearchHistory(query);
+  }
+
+  @override
+  Future<void> removeSearchQuery(String query) async {
+    await _db.libraryDao.removeSearchHistory(query);
+  }
+
+  @override
+  Future<void> clearSearchHistory() async {
+    await _db.libraryDao.clearSearchHistory();
   }
 
   @override

@@ -6,7 +6,6 @@ library;
 
 import 'models/album.dart';
 import 'models/artist.dart';
-import 'models/playlist.dart';
 import 'models/song.dart';
 
 /// Mock songs for UI development.

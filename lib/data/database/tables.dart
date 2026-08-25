@@ -86,3 +86,12 @@ class LibraryLocations extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
+
+@DataClassName('SearchHistoryEntity')
+class SearchHistory extends Table {
+  TextColumn get query => text()();
+  DateTimeColumn get timestamp => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {query};
+}
