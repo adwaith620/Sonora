@@ -1,9 +1,15 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
     <!-- Permissions for local audio scanning -->
 
     <!-- Required for Android Visualizer API (audio visualization) -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <!-- Required for audio_service background playback -->
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
 
     <application
         android:label="sonora"
@@ -36,6 +42,26 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- audio_service configuration -->
+        <service android:name="com.ryanheise.audioservice.AudioService"
+            android:foregroundServiceType="mediaPlayback"
+            android:exported="true" tools:ignore="Instantiatable">
+          <intent-filter>
+            <action android:name="android.media.browse.MediaBrowserService" />
+          </intent-filter>
+        </service>
+
+        <receiver android:name="com.ryanheise.audioservice.MediaButtonReceiver"
+            android:exported="true" tools:ignore="Instantiatable">
+          <intent-filter>
+            <action android:name="android.intent.action.MEDIA_BUTTON" />
+          </intent-filter>
+        </receiver>
+
+        <!-- Android Auto compatibility stub -->
+        <meta-data android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

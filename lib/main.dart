@@ -1,4 +1,5 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:audio_session/audio_session.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,6 +28,9 @@ void main() async {
     await windowManager.show();
   }
 
+  final session = await AudioSession.instance;
+  await session.configure(const AudioSessionConfiguration.music());
+
   final audioHandler = await AudioService.init(
     builder: () => SonoraAudioHandler(),
     config: const AudioServiceConfig(
@@ -34,6 +38,8 @@ void main() async {
       androidNotificationChannelName: 'Sonora Audio Playback',
       androidNotificationOngoing: true,
       androidStopForegroundOnPause: true,
+      androidShowNotificationBadge: true,
+      androidNotificationClickStartsActivity: true,
     ),
   );
 
