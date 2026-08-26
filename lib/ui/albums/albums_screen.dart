@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 import '../../core/constants.dart';
 import '../../data/models/album.dart';
@@ -81,25 +82,39 @@ class AlbumsScreen extends ConsumerWidget {
                   ? 4
                   : 5;
 
-              return GridView.builder(
-                padding: const EdgeInsets.all(Spacing.sm)
-                    .copyWith(bottom: kMiniPlayerHeight + Spacing.md),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  childAspectRatio: 0.75,
-                  crossAxisSpacing: Spacing.xs,
-                  mainAxisSpacing: Spacing.xs,
+              return AnimationLimiter(
+                child: GridView.builder(
+                  padding: const EdgeInsets.all(Spacing.sm)
+                      .copyWith(bottom: kMiniPlayerHeight + Spacing.md),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    childAspectRatio: 0.75,
+                    crossAxisSpacing: Spacing.xs,
+                    mainAxisSpacing: Spacing.xs,
+                  ),
+                  itemCount: albums.length,
+                  itemBuilder: (context, index) {
+                    return AnimationConfiguration.staggeredGrid(
+                      position: index,
+                      duration: const Duration(milliseconds: 375),
+                      columnCount: crossAxisCount,
+                      child: SlideAnimation(
+                        verticalOffset: 50.0,
+                        child: FadeInAnimation(
+                          child: AlbumGridTile(
+                            album: albums[index],
+                            onTap: () {
+                              Navigator.of(context).pushNamed(
+                                '/album',
+                                arguments: albums[index].id,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-                itemCount: albums.length,
-                itemBuilder: (context, index) {
-                  return AlbumGridTile(
-                    album: albums[index],
-                    onTap: () {
-                      Navigator.of(context)
-                          .pushNamed('/album', arguments: albums[index].id);
-                    },
-                  );
-                },
               );
             },
           );

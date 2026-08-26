@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/extensions.dart';
@@ -200,12 +201,15 @@ class NowPlayingScreen extends ConsumerWidget {
           ),
         ],
       ),
-      child: ArtworkWidget(
-        artworkPath: currentSong.artworkPath,
-        size: artworkSize,
-        borderRadius: BorderRadius.circular(Radii.extraLarge),
-        icon: Icons.music_note_rounded,
-        iconSize: 80,
+      child: Hero(
+        tag: 'miniplayer_artwork_${currentSong.id}',
+        child: ArtworkWidget(
+          artworkPath: currentSong.artworkPath,
+          size: artworkSize,
+          borderRadius: BorderRadius.circular(Radii.extraLarge),
+          icon: Icons.music_note_rounded,
+          iconSize: 80,
+        ),
       ),
     );
   }
@@ -340,18 +344,27 @@ class NowPlayingScreen extends ConsumerWidget {
                 Icons.shuffle_rounded,
                 color: state.shuffleEnabled ? theme.colorScheme.primary : null,
               ),
-              onPressed: () => audio.toggleShuffle(),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                audio.toggleShuffle();
+              },
             ),
 
             // Previous
             IconButton(
               icon: const Icon(Icons.skip_previous_rounded, size: 36),
-              onPressed: () => audio.previous(),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                audio.previous();
+              },
             ),
 
             // Play/Pause
             FilledButton(
-              onPressed: () => audio.togglePlayPause(),
+              onPressed: () {
+                HapticFeedback.mediumImpact();
+                audio.togglePlayPause();
+              },
               style: FilledButton.styleFrom(
                 shape: const CircleBorder(),
                 padding: const EdgeInsets.all(16),
@@ -367,7 +380,10 @@ class NowPlayingScreen extends ConsumerWidget {
             // Next
             IconButton(
               icon: const Icon(Icons.skip_next_rounded, size: 36),
-              onPressed: () => audio.next(),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                audio.next();
+              },
             ),
 
             // Repeat
@@ -380,7 +396,10 @@ class NowPlayingScreen extends ConsumerWidget {
                     ? theme.colorScheme.primary
                     : null,
               ),
-              onPressed: () => audio.cycleRepeatMode(),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                audio.cycleRepeatMode();
+              },
             ),
           ],
         );

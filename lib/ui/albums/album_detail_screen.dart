@@ -156,12 +156,15 @@ class _AlbumHeader extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const SizedBox(height: 48), // AppBar height
-            ArtworkWidget(
-              artworkPath: album.artworkPath,
-              size: 180,
-              borderRadius: BorderRadius.circular(Radii.large),
-              icon: Icons.album_rounded,
-              iconSize: 64,
+            Hero(
+              tag: 'album_artwork_${album.id}',
+              child: ArtworkWidget(
+                artworkPath: album.artworkPath,
+                size: 180,
+                borderRadius: BorderRadius.circular(Radii.large),
+                icon: Icons.album_rounded,
+                iconSize: 64,
+              ),
             ),
             const SizedBox(height: Spacing.lg),
             Text(

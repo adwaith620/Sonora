@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/constants.dart';
@@ -86,16 +87,28 @@ class HomeScreen extends ConsumerWidget {
             child: Text('Nothing here yet.'),
           );
         }
-        return Column(
-          children: songs.take(5).map((song) {
-            return SongListTile(
-              song: song,
-              onTap: () {
-                final audioService = ref.read(audioPlayerServiceProvider);
-                audioService.playQueue(songs, startIndex: songs.indexOf(song));
-              },
-            );
-          }).toList(),
+        return AnimationLimiter(
+          child: Column(
+            children: AnimationConfiguration.toStaggeredList(
+              duration: const Duration(milliseconds: 375),
+              childAnimationBuilder: (widget) => SlideAnimation(
+                verticalOffset: 50.0,
+                child: FadeInAnimation(child: widget),
+              ),
+              children: songs.take(5).map((song) {
+                return SongListTile(
+                  song: song,
+                  onTap: () {
+                    final audioService = ref.read(audioPlayerServiceProvider);
+                    audioService.playQueue(
+                      songs,
+                      startIndex: songs.indexOf(song),
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+          ),
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -123,20 +136,35 @@ class HomeScreen extends ConsumerWidget {
         }
         return SizedBox(
           height: 200,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: Spacing.md),
-            itemCount: albums.length > 10 ? 10 : albums.length,
-            itemBuilder: (context, index) {
-              final album = albums[index];
-              return SizedBox(
-                width: 150,
-                child: AlbumGridTile(
-                  album: album,
-                  onTap: () => context.push('/albums/${album.id}'),
-                ),
-              );
-            },
+          child: AnimationLimiter(
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: Spacing.md),
+              itemCount: albums.length > 10 ? 10 : albums.length,
+              itemBuilder: (context, index) {
+                return AnimationConfiguration.staggeredList(
+                  position: index,
+                  duration: const Duration(milliseconds: 375),
+                  child: SlideAnimation(
+                    horizontalOffset: 50.0,
+                    child: FadeInAnimation(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: Spacing.sm),
+                        child: SizedBox(
+                          width: 140,
+                          child: AlbumGridTile(
+                            album: albums[index],
+                            onTap: () {
+                              context.push('/albums/${albums[index].id}');
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         );
       },
@@ -167,41 +195,53 @@ class HomeScreen extends ConsumerWidget {
         final theme = Theme.of(context);
         return SizedBox(
           height: 120,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: Spacing.lg),
-            itemCount: artists.length > 10 ? 10 : artists.length,
-            itemBuilder: (context, index) {
-              final artist = artists[index];
-              return InkWell(
-                onTap: () => context.push('/artists/${artist.id}'),
-                borderRadius: BorderRadius.circular(Spacing.sm),
-                child: Padding(
-                  padding: const EdgeInsets.only(right: Spacing.lg),
-                  child: Column(
-                    children: [
-                      ArtworkWidget(
-                        artworkPath: artist.artworkPath,
-                        size: 72,
-                        borderRadius: BorderRadius.circular(36),
-                        icon: Icons.person_rounded,
-                      ),
-                      const SizedBox(height: Spacing.sm),
-                      SizedBox(
-                        width: 80,
-                        child: Text(
-                          artist.name,
-                          style: theme.textTheme.bodySmall,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+          child: AnimationLimiter(
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: Spacing.lg),
+              itemCount: artists.length > 10 ? 10 : artists.length,
+              itemBuilder: (context, index) {
+                final artist = artists[index];
+                return AnimationConfiguration.staggeredList(
+                  position: index,
+                  duration: const Duration(milliseconds: 375),
+                  child: SlideAnimation(
+                    horizontalOffset: 50.0,
+                    child: FadeInAnimation(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: Spacing.md),
+                        child: InkWell(
+                          onTap: () => context.push('/artists/${artist.id}'),
+                          borderRadius: BorderRadius.circular(Radii.small),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ArtworkWidget(
+                                artworkPath: artist.artworkPath,
+                                size: 80,
+                                borderRadius: BorderRadius.circular(40),
+                                icon: Icons.person_rounded,
+                              ),
+                              const SizedBox(height: Spacing.xs),
+                              SizedBox(
+                                width: 80,
+                                child: Text(
+                                  artist.name,
+                                  style: theme.textTheme.bodySmall,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         );
       },

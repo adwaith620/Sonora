@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/providers/audio_provider.dart';
@@ -58,10 +59,13 @@ class MiniPlayer extends ConsumerWidget {
               child: Row(
                 children: [
                   // Artwork
-                  ArtworkWidget(
-                    artworkPath: song.artworkPath,
-                    size: 44,
-                    borderRadius: BorderRadius.circular(Radii.small),
+                  Hero(
+                    tag: 'miniplayer_artwork_${song.id}',
+                    child: ArtworkWidget(
+                      artworkPath: song.artworkPath,
+                      size: 44,
+                      borderRadius: BorderRadius.circular(Radii.small),
+                    ),
                   ),
 
                   const SizedBox(width: Spacing.md),
@@ -103,7 +107,10 @@ class MiniPlayer extends ConsumerWidget {
                               ? Icons.pause_rounded
                               : Icons.play_arrow_rounded,
                         ),
-                        onPressed: () => audio.togglePlayPause(),
+                        onPressed: () {
+                          HapticFeedback.mediumImpact();
+                          audio.togglePlayPause();
+                        },
                       );
                     },
                   ),
@@ -114,7 +121,10 @@ class MiniPlayer extends ConsumerWidget {
                       final audio = ref.read(audioPlayerServiceProvider);
                       return IconButton(
                         icon: const Icon(Icons.skip_next_rounded),
-                        onPressed: () => audio.next(),
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          audio.next();
+                        },
                         visualDensity: VisualDensity.compact,
                       );
                     },

@@ -28,11 +28,14 @@ class AlbumGridTile extends StatelessWidget {
             // Album artwork
             AspectRatio(
               aspectRatio: 1,
-              child: ArtworkWidget(
-                artworkPath: album.artworkPath,
-                size: double.infinity,
-                borderRadius: BorderRadius.circular(Radii.medium),
-                icon: Icons.album_rounded,
+              child: Hero(
+                tag: 'album_artwork_${album.id}',
+                child: ArtworkWidget(
+                  artworkPath: album.artworkPath,
+                  size: double.infinity,
+                  borderRadius: BorderRadius.circular(Radii.medium),
+                  icon: Icons.album_rounded,
+                ),
               ),
             ),
 

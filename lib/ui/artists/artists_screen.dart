@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 
 import '../../core/constants.dart';
 import '../../data/models/artist.dart';
@@ -114,37 +115,48 @@ class _ArtistsScreenState extends ConsumerState<ArtistsScreen> {
           }
           return Stack(
             children: [
-              ListView.builder(
-                controller: _scrollController,
-                itemExtent: _itemHeight,
-                padding: const EdgeInsets.only(
-                  bottom: kMiniPlayerHeight + Spacing.md,
+              AnimationLimiter(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemExtent: _itemHeight,
+                  padding: const EdgeInsets.only(
+                    bottom: kMiniPlayerHeight + Spacing.md,
+                  ),
+                  itemCount: artists.length,
+                  itemBuilder: (context, index) {
+                    final artist = artists[index];
+                    return AnimationConfiguration.staggeredList(
+                      position: index,
+                      duration: const Duration(milliseconds: 375),
+                      child: SlideAnimation(
+                        verticalOffset: 50.0,
+                        child: FadeInAnimation(
+                          child: SizedBox(
+                            height: _itemHeight,
+                            child: ListTile(
+                              leading: ArtworkWidget(
+                                artworkPath: artist.artworkPath,
+                                size: 48,
+                                borderRadius: BorderRadius.circular(24),
+                                icon: Icons.person_rounded,
+                              ),
+                              title: Text(
+                                artist.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              trailing: const Icon(Icons.chevron_right_rounded),
+                              onTap: () {
+                                Navigator.of(context)
+                                    .pushNamed('/artist', arguments: artist.id);
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-                itemCount: artists.length,
-                itemBuilder: (context, index) {
-                  final artist = artists[index];
-                  return SizedBox(
-                    height: _itemHeight,
-                    child: ListTile(
-                      leading: ArtworkWidget(
-                        artworkPath: artist.artworkPath,
-                        size: 48,
-                        borderRadius: BorderRadius.circular(24),
-                        icon: Icons.person_rounded,
-                      ),
-                      title: Text(
-                        artist.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () {
-                        Navigator.of(context)
-                            .pushNamed('/artist', arguments: artist.id);
-                      },
-                    ),
-                  );
-                },
               ),
               if (currentSort == ArtistSortField.name)
                 Positioned(
