@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../data/providers/audio_provider.dart';
+import 'package:window_manager/window_manager.dart';
 
 import '../core/constants.dart';
 import '../core/platform_utils.dart';
-
-import 'package:window_manager/window_manager.dart';
-
+import '../data/providers/audio_provider.dart';
 import '../ui/player/mini_player.dart';
 import 'destinations.dart';
 

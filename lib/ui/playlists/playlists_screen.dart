@@ -95,33 +95,29 @@ class PlaylistsScreen extends ConsumerWidget {
         }
 
         return SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              if (index == 0) {
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-                  child: Text(
-                    'Your Playlists',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
+          delegate: SliverChildBuilderDelegate((context, index) {
+            if (index == 0) {
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                child: Text(
+                  'Your Playlists',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.bold,
                   ),
-                );
-              }
-              final playlist = playlists[index - 1];
-              return _buildPlaylistTile(context, playlist, theme);
-            },
-            childCount: playlists.length + 1,
-          ),
+                ),
+              );
+            }
+            final playlist = playlists[index - 1];
+            return _buildPlaylistTile(context, playlist, theme);
+          }, childCount: playlists.length + 1),
         );
       },
       loading: () => const SliverFillRemaining(
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (e, st) => SliverFillRemaining(
-        child: Center(child: Text('Error: $e')),
-      ),
+      error: (e, st) =>
+          SliverFillRemaining(child: Center(child: Text('Error: $e'))),
     );
   }
 

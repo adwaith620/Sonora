@@ -213,8 +213,8 @@ class DriftLibraryService implements LibraryService {
   @override
   Stream<List<String>> watchSearchHistory() {
     return _db.libraryDao.watchSearchHistory().map(
-          (list) => list.map((e) => e.query).toList(),
-        );
+      (list) => list.map((e) => e.query).toList(),
+    );
   }
 
   @override

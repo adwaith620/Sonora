@@ -17,9 +17,9 @@ class MiniPlayer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final playbackState = ref.watch(playbackStateProvider);
-    final song = playbackState.currentSong;
-    final audio = ref.read(audioPlayerServiceProvider);
+
+    // Only rebuild the entire MiniPlayer when the current song changes.
+    final song = ref.watch(playbackStateProvider.select((s) => s.currentSong));
 
     if (song == null) {
       return const SizedBox.shrink();
@@ -91,33 +91,53 @@ class MiniPlayer extends ConsumerWidget {
                   ),
 
                   // Play/Pause
-                  IconButton(
-                    icon: Icon(
-                      playbackState.isPlaying
-                          ? Icons.pause_rounded
-                          : Icons.play_arrow_rounded,
-                    ),
-                    onPressed: () => audio.togglePlayPause(),
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final isPlaying = ref.watch(
+                        playbackStateProvider.select((s) => s.isPlaying),
+                      );
+                      final audio = ref.read(audioPlayerServiceProvider);
+                      return IconButton(
+                        icon: Icon(
+                          isPlaying
+                              ? Icons.pause_rounded
+                              : Icons.play_arrow_rounded,
+                        ),
+                        onPressed: () => audio.togglePlayPause(),
+                      );
+                    },
                   ),
 
                   // Next
-                  IconButton(
-                    icon: const Icon(Icons.skip_next_rounded),
-                    onPressed: () => audio.next(),
-                    visualDensity: VisualDensity.compact,
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final audio = ref.read(audioPlayerServiceProvider);
+                      return IconButton(
+                        icon: const Icon(Icons.skip_next_rounded),
+                        onPressed: () => audio.next(),
+                        visualDensity: VisualDensity.compact,
+                      );
+                    },
                   ),
                 ],
               ),
             ),
 
             // Progress bar
-            LinearProgressIndicator(
-              value: playbackState.progress,
-              minHeight: 2,
-              backgroundColor: Colors.transparent,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                theme.colorScheme.primary,
-              ),
+            Consumer(
+              builder: (context, ref, child) {
+                final progress = ref.watch(
+                  playbackStateProvider.select((s) => s.progress),
+                );
+                return LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 2,
+                  backgroundColor: Colors.transparent,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    theme.colorScheme.primary,
+                  ),
+                );
+              },
             ),
           ],
         ),

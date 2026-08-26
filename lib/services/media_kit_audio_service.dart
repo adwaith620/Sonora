@@ -4,8 +4,8 @@ import 'package:media_kit/media_kit.dart';
 
 import '../data/models/song.dart';
 import '../data/providers/queue_provider.dart';
-import 'audio_player_service.dart';
 import 'audio_handler.dart';
+import 'audio_player_service.dart';
 import 'windows_smtc_handler.dart';
 
 class MediaKitAudioService implements AudioPlayerService {

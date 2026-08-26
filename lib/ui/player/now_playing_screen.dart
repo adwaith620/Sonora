@@ -21,8 +21,9 @@ class NowPlayingScreen extends ConsumerWidget {
     final size = MediaQuery.sizeOf(context);
     final isCompact = size.width < 600;
 
-    final playbackState = ref.watch(playbackStateProvider);
-    final currentSong = playbackState.currentSong;
+    final currentSong = ref.watch(
+      playbackStateProvider.select((s) => s.currentSong),
+    );
 
     if (currentSong == null) {
       return const Scaffold(body: Center(child: Text('No song playing')));
@@ -51,22 +52,12 @@ class NowPlayingScreen extends ConsumerWidget {
               // Main content
               Expanded(
                 child: isCompact
-                    ? _buildCompactLayout(
-                        context,
-                        currentSong,
-                        playbackState,
-                        ref,
-                      )
-                    : _buildWideLayout(
-                        context,
-                        currentSong,
-                        playbackState,
-                        ref,
-                      ),
+                    ? _buildCompactLayout(context, currentSong, ref)
+                    : _buildWideLayout(context, currentSong, ref),
               ),
 
               // Bottom actions
-              _buildBottomActions(context),
+              if (isCompact) _buildBottomActions(context),
 
               const SizedBox(height: Spacing.lg),
             ],
@@ -123,7 +114,6 @@ class NowPlayingScreen extends ConsumerWidget {
   Widget _buildCompactLayout(
     BuildContext context,
     Song currentSong,
-    PlaybackState playbackState,
     WidgetRef ref,
   ) {
     return Padding(
@@ -147,10 +137,10 @@ class NowPlayingScreen extends ConsumerWidget {
           _buildSongInfo(context, currentSong, ref),
           const SizedBox(height: Spacing.xl),
           // Progress bar
-          _buildProgressBar(context, playbackState, ref),
+          _buildProgressBar(context),
           const SizedBox(height: Spacing.lg),
           // Playback controls
-          _buildPlaybackControls(context, playbackState, ref),
+          _buildPlaybackControls(context),
           const Spacer(flex: 1),
         ],
       ),
@@ -160,7 +150,6 @@ class NowPlayingScreen extends ConsumerWidget {
   Widget _buildWideLayout(
     BuildContext context,
     Song currentSong,
-    PlaybackState playbackState,
     WidgetRef ref,
   ) {
     return Row(
@@ -182,9 +171,9 @@ class NowPlayingScreen extends ConsumerWidget {
                 const AudioVisualizerWidget(height: 32),
 
                 const SizedBox(height: Spacing.xl),
-                _buildProgressBar(context, playbackState, ref),
+                _buildProgressBar(context),
                 const SizedBox(height: Spacing.xl),
-                _buildPlaybackControls(context, playbackState, ref),
+                _buildPlaybackControls(context),
               ],
             ),
           ),
@@ -281,116 +270,121 @@ class NowPlayingScreen extends ConsumerWidget {
     }
   }
 
-  Widget _buildProgressBar(
-    BuildContext context,
-    PlaybackState state,
-    WidgetRef ref,
-  ) {
-    final theme = Theme.of(context);
-    final progress = state.progress;
-    final elapsed = state.position;
-    final remaining = state.duration - state.position;
+  Widget _buildProgressBar(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final theme = Theme.of(context);
+        final state = ref.watch(playbackStateProvider);
+        final progress = state.progress;
+        final elapsed = state.position;
+        final remaining = state.duration - state.position;
 
-    return Column(
-      children: [
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 4,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-            overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-          ),
-          child: Slider(
-            value: progress,
-            onChanged: (value) {
-              final newPosition = Duration(
-                milliseconds: (value * state.duration.inMilliseconds).round(),
-              );
-              ref.read(audioPlayerServiceProvider).seek(newPosition);
-            },
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Spacing.xs),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                elapsed.toPlaybackString(),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+        return Column(
+          children: [
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                trackHeight: 4,
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
               ),
-              Text(
-                remaining.toRemainingString(),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+              child: Slider(
+                value: progress,
+                onChanged: (value) {
+                  final newPosition = Duration(
+                    milliseconds: (value * state.duration.inMilliseconds)
+                        .round(),
+                  );
+                  ref.read(audioPlayerServiceProvider).seek(newPosition);
+                },
               ),
-            ],
-          ),
-        ),
-      ],
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Spacing.xs),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    elapsed.toPlaybackString(),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  Text(
+                    remaining.toRemainingString(),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildPlaybackControls(
-    BuildContext context,
-    PlaybackState state,
-    WidgetRef ref,
-  ) {
-    final theme = Theme.of(context);
-    final audio = ref.read(audioPlayerServiceProvider);
+  Widget _buildPlaybackControls(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final theme = Theme.of(context);
+        final state = ref.watch(playbackStateProvider);
+        final audio = ref.read(audioPlayerServiceProvider);
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        // Shuffle
-        IconButton(
-          icon: Icon(
-            Icons.shuffle_rounded,
-            color: state.shuffleEnabled ? theme.colorScheme.primary : null,
-          ),
-          onPressed: () => audio.toggleShuffle(),
-        ),
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            // Shuffle
+            IconButton(
+              icon: Icon(
+                Icons.shuffle_rounded,
+                color: state.shuffleEnabled ? theme.colorScheme.primary : null,
+              ),
+              onPressed: () => audio.toggleShuffle(),
+            ),
 
-        // Previous
-        IconButton(
-          icon: const Icon(Icons.skip_previous_rounded, size: 36),
-          onPressed: () => audio.previous(),
-        ),
+            // Previous
+            IconButton(
+              icon: const Icon(Icons.skip_previous_rounded, size: 36),
+              onPressed: () => audio.previous(),
+            ),
 
-        // Play/Pause
-        FilledButton(
-          onPressed: () => audio.togglePlayPause(),
-          style: FilledButton.styleFrom(
-            shape: const CircleBorder(),
-            padding: const EdgeInsets.all(16),
-          ),
-          child: Icon(
-            state.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-            size: 36,
-          ),
-        ),
+            // Play/Pause
+            FilledButton(
+              onPressed: () => audio.togglePlayPause(),
+              style: FilledButton.styleFrom(
+                shape: const CircleBorder(),
+                padding: const EdgeInsets.all(16),
+              ),
+              child: Icon(
+                state.isPlaying
+                    ? Icons.pause_rounded
+                    : Icons.play_arrow_rounded,
+                size: 36,
+              ),
+            ),
 
-        // Next
-        IconButton(
-          icon: const Icon(Icons.skip_next_rounded, size: 36),
-          onPressed: () => audio.next(),
-        ),
+            // Next
+            IconButton(
+              icon: const Icon(Icons.skip_next_rounded, size: 36),
+              onPressed: () => audio.next(),
+            ),
 
-        // Repeat
-        IconButton(
-          icon: Icon(
-            state.repeatMode == SonoraRepeatMode.one
-                ? Icons.repeat_one_rounded
-                : Icons.repeat_rounded,
-            color: state.repeatMode != SonoraRepeatMode.off
-                ? theme.colorScheme.primary
-                : null,
-          ),
-          onPressed: () => audio.cycleRepeatMode(),
-        ),
-      ],
+            // Repeat
+            IconButton(
+              icon: Icon(
+                state.repeatMode == SonoraRepeatMode.one
+                    ? Icons.repeat_one_rounded
+                    : Icons.repeat_rounded,
+                color: state.repeatMode != SonoraRepeatMode.off
+                    ? theme.colorScheme.primary
+                    : null,
+              ),
+              onPressed: () => audio.cycleRepeatMode(),
+            ),
+          ],
+        );
+      },
     );
   }
 

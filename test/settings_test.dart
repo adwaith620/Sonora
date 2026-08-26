@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sonora/theme/theme_provider.dart';
+import 'package:sonora/data/providers/scanner_provider.dart';
+import 'package:sonora/services/scanner_service.dart';
 import 'package:sonora/theme/app_theme.dart';
 import 'package:sonora/ui/settings/settings_screen.dart';
-import 'package:sonora/services/scanner_service.dart';
-import 'package:sonora/data/providers/scanner_provider.dart';
 
 class MockScannerService implements ScannerService {
   @override
@@ -39,7 +38,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [scannerServiceProvider.overrideWithValue(mockScanner)],
-        child: MaterialApp(home: const SettingsScreen()),
+        child: const MaterialApp(home: SettingsScreen()),
       ),
     );
 

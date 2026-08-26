@@ -48,10 +48,10 @@ class ArtistDetailScreen extends ConsumerWidget {
           final artistSongs = data.songs;
 
           if (artist == null) {
-            return CustomScrollView(
+            return const CustomScrollView(
               slivers: [
-                const SliverAppBar(pinned: true),
-                const SliverFillRemaining(
+                SliverAppBar(pinned: true),
+                SliverFillRemaining(
                   child: Center(child: Text('Artist not found')),
                 ),
               ],

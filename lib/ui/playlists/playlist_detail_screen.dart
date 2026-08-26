@@ -58,9 +58,9 @@ class PlaylistDetailScreen extends ConsumerWidget {
     ThemeData theme,
   ) {
     IconData? icon;
-    if (playlist.id == 'smart_favorites')
+    if (playlist.id == 'smart_favorites') {
       icon = Icons.favorite_rounded;
-    else if (playlist.id == 'smart_recently_played')
+    } else if (playlist.id == 'smart_recently_played')
       icon = Icons.history_rounded;
     else if (playlist.id == 'smart_recently_added')
       icon = Icons.new_releases_rounded;
@@ -109,7 +109,11 @@ class PlaylistDetailScreen extends ConsumerWidget {
           fit: StackFit.expand,
           children: [
             // Background blur/gradient could go here
-            ColoredBox(color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)),
+            ColoredBox(
+              color: theme.colorScheme.surfaceContainerHighest.withValues(
+                alpha: 0.3,
+              ),
+            ),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

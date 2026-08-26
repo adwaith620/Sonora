@@ -25,14 +25,16 @@ class SearchQueryNotifier extends StateNotifier<String> {
 }
 
 /// Provider for the active search query.
-final searchQueryProvider =
-    StateNotifierProvider<SearchQueryNotifier, String>((ref) {
+final searchQueryProvider = StateNotifierProvider<SearchQueryNotifier, String>((
+  ref,
+) {
   return SearchQueryNotifier();
 });
 
 /// Debounces the search query and returns the results.
-final searchResultsProvider =
-    FutureProvider.autoDispose<LibrarySearchResult>((ref) async {
+final searchResultsProvider = FutureProvider.autoDispose<LibrarySearchResult>((
+  ref,
+) async {
   final query = ref.watch(searchQueryProvider).trim();
   final libraryService = ref.watch(libraryRepositoryProvider);
 

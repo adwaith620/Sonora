@@ -1,10 +1,10 @@
+import 'package:drift/drift.dart' as drift;
+import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sonora/data/database/database.dart';
 import 'package:sonora/data/database/drift_library_service.dart';
-import 'package:sonora/services/audio_player_service.dart';
 import 'package:sonora/data/models/song.dart';
-import 'package:drift/native.dart';
-import 'package:drift/drift.dart' as drift;
+import 'package:sonora/services/audio_player_service.dart';
 
 void main() {
   group('Album & Artist Detail Integration', () {
@@ -140,9 +140,9 @@ void main() {
 
   group('Playback Logic Tests', () {
     test('Album/Artist Play All produces the expected queue', () {
-      final song1 = Song(id: 'song1', fileUri: '1', title: '1');
-      final song2 = Song(id: 'song2', fileUri: '2', title: '2');
-      final state = PlaybackState();
+      const song1 = Song(id: 'song1', fileUri: '1', title: '1');
+      const song2 = Song(id: 'song2', fileUri: '2', title: '2');
+      const state = PlaybackState();
 
       final newState = state.copyWith(queue: [song1, song2], currentIndex: 0);
       expect(newState.queue.length, 2);

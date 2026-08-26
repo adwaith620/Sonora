@@ -6,7 +6,15 @@ import 'tables.dart';
 part 'daos.g.dart';
 
 @DriftAccessor(
-  tables: [Songs, Albums, Artists, Playlists, PlaylistSongs, LibraryLocations, SearchHistory],
+  tables: [
+    Songs,
+    Albums,
+    Artists,
+    Playlists,
+    PlaylistSongs,
+    LibraryLocations,
+    SearchHistory,
+  ],
 )
 class LibraryDao extends DatabaseAccessor<SonoraDatabase>
     with _$LibraryDaoMixin {
@@ -230,7 +238,9 @@ class LibraryDao extends DatabaseAccessor<SonoraDatabase>
 
   Future<List<AlbumEntity>> searchAlbums(String query) {
     return (select(albums)
-          ..where((t) => t.title.like('%$query%') | t.albumArtist.like('%$query%'))
+          ..where(
+            (t) => t.title.like('%$query%') | t.albumArtist.like('%$query%'),
+          )
           ..limit(20))
         .get();
   }

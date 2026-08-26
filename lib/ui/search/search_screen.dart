@@ -97,7 +97,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 Icon(
                   Icons.search_rounded,
                   size: 64,
-                  color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                  color: theme.colorScheme.onSurfaceVariant.withValues(
+                    alpha: 0.5,
+                  ),
                 ),
                 const SizedBox(height: Spacing.lg),
                 Text(
@@ -209,25 +211,22 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 ),
               ),
               SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final artist = results.artists[index];
-                    return ListTile(
-                      leading: ArtworkWidget(
-                        artworkPath: artist.artworkPath,
-                        size: 40,
-                        borderRadius: BorderRadius.circular(20),
-                        icon: Icons.person_rounded,
-                      ),
-                      title: Text(artist.name),
-                      onTap: () {
-                        _onSearchSubmitted(_searchController.text);
-                        context.push('/artists/${artist.id}');
-                      },
-                    );
-                  },
-                  childCount: results.artists.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final artist = results.artists[index];
+                  return ListTile(
+                    leading: ArtworkWidget(
+                      artworkPath: artist.artworkPath,
+                      size: 40,
+                      borderRadius: BorderRadius.circular(20),
+                      icon: Icons.person_rounded,
+                    ),
+                    title: Text(artist.name),
+                    onTap: () {
+                      _onSearchSubmitted(_searchController.text);
+                      context.push('/artists/${artist.id}');
+                    },
+                  );
+                }, childCount: results.artists.length),
               ),
             ],
 
@@ -251,26 +250,23 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 ),
               ),
               SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final album = results.albums[index];
-                    return ListTile(
-                      leading: ArtworkWidget(
-                        artworkPath: album.artworkPath,
-                        size: 40,
-                        borderRadius: BorderRadius.circular(8),
-                        icon: Icons.album_rounded,
-                      ),
-                      title: Text(album.name),
-                      subtitle: Text(album.artist),
-                      onTap: () {
-                        _onSearchSubmitted(_searchController.text);
-                        context.push('/albums/${album.id}');
-                      },
-                    );
-                  },
-                  childCount: results.albums.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final album = results.albums[index];
+                  return ListTile(
+                    leading: ArtworkWidget(
+                      artworkPath: album.artworkPath,
+                      size: 40,
+                      borderRadius: BorderRadius.circular(8),
+                      icon: Icons.album_rounded,
+                    ),
+                    title: Text(album.name),
+                    subtitle: Text(album.artist),
+                    onTap: () {
+                      _onSearchSubmitted(_searchController.text);
+                      context.push('/albums/${album.id}');
+                    },
+                  );
+                }, childCount: results.albums.length),
               ),
             ],
 
@@ -294,28 +290,23 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 ),
               ),
               SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final song = results.songs[index];
-                    return SongListTile(
-                      song: song,
-                      onTap: () {
-                        _onSearchSubmitted(_searchController.text);
-                        ref
-                            .read(audioPlayerServiceProvider)
-                            .playQueue(results.songs, startIndex: index);
-                      },
-                    );
-                  },
-                  childCount: results.songs.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final song = results.songs[index];
+                  return SongListTile(
+                    song: song,
+                    onTap: () {
+                      _onSearchSubmitted(_searchController.text);
+                      ref
+                          .read(audioPlayerServiceProvider)
+                          .playQueue(results.songs, startIndex: index);
+                    },
+                  );
+                }, childCount: results.songs.length),
               ),
             ],
-            
+
             // Padding at bottom
-            const SliverToBoxAdapter(
-              child: SizedBox(height: Spacing.xxl),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: Spacing.xxl)),
           ],
         );
       },

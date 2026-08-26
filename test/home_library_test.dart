@@ -3,7 +3,6 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sonora/data/database/database.dart';
 import 'package:sonora/data/database/drift_library_service.dart';
-import 'package:sonora/data/models/song.dart';
 import 'package:sonora/services/library_service.dart';
 
 void main() {

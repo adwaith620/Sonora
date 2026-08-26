@@ -5,16 +5,37 @@ import '../../core/constants.dart';
 import '../../data/models/song.dart';
 import '../../data/providers/audio_provider.dart';
 import '../../data/providers/repository_providers.dart';
+import '../../data/providers/sort_providers.dart';
 import '../../services/library_service.dart';
 import '../../theme/dimensions.dart';
 import '../common/alphabetical_scroll_bar.dart';
 import '../common/artwork_widget.dart';
-import '../../data/providers/sort_providers.dart';
 
 final songsListProvider = FutureProvider<List<Song>>((ref) async {
   final db = ref.watch(libraryRepositoryProvider);
   final sort = ref.watch(songsSortProvider);
   return db.getAllSongs(sortBy: sort);
+});
+
+final songsLettersProvider = Provider<List<String>>((ref) {
+  final songsAsync = ref.watch(songsListProvider);
+  return songsAsync.maybeWhen(
+    data: (songs) {
+      final Set<String> letters = {};
+      for (final song in songs) {
+        if (song.title.isNotEmpty) {
+          final firstChar = song.title[0].toUpperCase();
+          if (RegExp(r'[A-Z]').hasMatch(firstChar)) {
+            letters.add(firstChar);
+          } else {
+            letters.add('#');
+          }
+        }
+      }
+      return letters.toList()..sort();
+    },
+    orElse: () => [],
+  );
 });
 
 class SongsScreen extends ConsumerStatefulWidget {
@@ -27,21 +48,6 @@ class SongsScreen extends ConsumerStatefulWidget {
 class _SongsScreenState extends ConsumerState<SongsScreen> {
   final ScrollController _scrollController = ScrollController();
   final double _itemHeight = 72.0;
-
-  List<String> _extractLetters(List<Song> songs) {
-    final Set<String> letters = {};
-    for (final song in songs) {
-      if (song.title.isNotEmpty) {
-        final firstChar = song.title[0].toUpperCase();
-        if (RegExp(r'[A-Z]').hasMatch(firstChar)) {
-          letters.add(firstChar);
-        } else {
-          letters.add('#');
-        }
-      }
-    }
-    return letters.toList()..sort();
-  }
 
   void _scrollToLetter(String letter, List<Song> songs) {
     int index = -1;
@@ -224,7 +230,7 @@ class _SongsScreenState extends ConsumerState<SongsScreen> {
               right: 0,
               bottom: kMiniPlayerHeight + 16,
               child: AlphabeticalScrollBar(
-                letters: _extractLetters(songsAsync.value!),
+                letters: ref.watch(songsLettersProvider),
                 onLetterTapped: (letter) {
                   _scrollToLetter(letter, songsAsync.value!);
                 },

@@ -42,10 +42,10 @@ class AlbumDetailScreen extends ConsumerWidget {
           final albumSongs = data.songs;
 
           if (album == null) {
-            return CustomScrollView(
+            return const CustomScrollView(
               slivers: [
-                const SliverAppBar(pinned: true),
-                const SliverFillRemaining(
+                SliverAppBar(pinned: true),
+                SliverFillRemaining(
                   child: Center(child: Text('Album not found')),
                 ),
               ],

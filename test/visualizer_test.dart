@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:sonora/services/visualizer_service.dart';
 import 'package:sonora/services/stub_visualizer_service.dart';
+import 'package:sonora/services/visualizer_service.dart';
 
 void main() {
   group('StubVisualizerService', () {

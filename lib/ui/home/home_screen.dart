@@ -6,12 +6,12 @@ import '../../core/constants.dart';
 import '../../data/models/album.dart';
 import '../../data/models/artist.dart';
 import '../../data/models/song.dart';
+import '../../data/providers/audio_provider.dart';
 import '../../theme/dimensions.dart';
 import '../common/album_grid_tile.dart';
 import '../common/artwork_widget.dart';
 import '../common/section_header.dart';
 import '../common/song_list_tile.dart';
-import '../../data/providers/audio_provider.dart';
 import '../favorites/favorites_screen.dart'; // For favoriteSongsProvider
 import 'home_providers.dart';
 

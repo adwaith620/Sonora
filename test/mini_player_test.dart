@@ -11,7 +11,7 @@ import 'package:sonora/ui/player/mini_player.dart';
 class MockAudioPlayerService implements AudioPlayerService {
   final StreamController<PlaybackState> _stateController =
       StreamController<PlaybackState>.broadcast();
-  PlaybackState _state = PlaybackState();
+  PlaybackState _state = const PlaybackState();
 
   void updateState(PlaybackState newState) {
     _state = newState;
@@ -34,7 +34,7 @@ void main() {
     (WidgetTester tester) async {
       final mockService = MockAudioPlayerService();
 
-      final song = const Song(
+      const song = Song(
         id: '123',
         title: 'Test Song',
         artist: 'Test Artist',
@@ -42,7 +42,7 @@ void main() {
       );
 
       mockService.updateState(
-        PlaybackState(currentSong: song, isPlaying: false),
+        const PlaybackState(currentSong: song, isPlaying: false),
       );
 
       await tester.pumpWidget(

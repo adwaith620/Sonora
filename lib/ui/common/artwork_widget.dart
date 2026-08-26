@@ -46,11 +46,17 @@ class ArtworkWidget extends StatelessWidget {
     final theme = Theme.of(context);
     final radius = _effectiveBorderRadius;
 
+    // Calculate the cache dimension based on logical pixel size and device pixel ratio.
+    // This prevents decoding massive album art (e.g. 2000x2000) into memory for a 56x56 thumbnail.
+    final cacheDimension = (size * MediaQuery.devicePixelRatioOf(context))
+        .round();
+
     final Widget child = artworkPath != null
         ? Image.file(
             File(artworkPath!),
             key: ValueKey(artworkPath),
             fit: BoxFit.cover,
+            cacheWidth: cacheDimension,
             errorBuilder: (context, error, stackTrace) => _placeholder(theme),
           )
         : _placeholder(theme);

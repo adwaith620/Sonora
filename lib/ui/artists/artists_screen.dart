@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants.dart';
 import '../../data/models/artist.dart';
 import '../../data/providers/repository_providers.dart';
+import '../../data/providers/sort_providers.dart';
 import '../../theme/dimensions.dart';
 import '../common/alphabetical_scroll_bar.dart';
 import '../common/artwork_widget.dart';
-import '../../data/providers/sort_providers.dart';
 
 final artistsListProvider = FutureProvider<List<Artist>>((ref) async {
   final db = ref.watch(libraryRepositoryProvider);
@@ -22,6 +22,27 @@ final artistsListProvider = FutureProvider<List<Artist>>((ref) async {
   return artists;
 });
 
+final artistsLettersProvider = Provider<List<String>>((ref) {
+  final artistsAsync = ref.watch(artistsListProvider);
+  return artistsAsync.maybeWhen(
+    data: (artists) {
+      final Set<String> letters = {};
+      for (final artist in artists) {
+        if (artist.name.isNotEmpty) {
+          final firstChar = artist.name[0].toUpperCase();
+          if (RegExp(r'[A-Z]').hasMatch(firstChar)) {
+            letters.add(firstChar);
+          } else {
+            letters.add('#');
+          }
+        }
+      }
+      return letters.toList()..sort();
+    },
+    orElse: () => [],
+  );
+});
+
 class ArtistsScreen extends ConsumerStatefulWidget {
   const ArtistsScreen({super.key});
 
@@ -32,21 +53,6 @@ class ArtistsScreen extends ConsumerStatefulWidget {
 class _ArtistsScreenState extends ConsumerState<ArtistsScreen> {
   final ScrollController _scrollController = ScrollController();
   final double _itemHeight = 72.0;
-
-  List<String> _extractLetters(List<Artist> artists) {
-    final Set<String> letters = {};
-    for (final artist in artists) {
-      if (artist.name.isNotEmpty) {
-        final firstChar = artist.name[0].toUpperCase();
-        if (RegExp(r'[A-Z]').hasMatch(firstChar)) {
-          letters.add(firstChar);
-        } else {
-          letters.add('#');
-        }
-      }
-    }
-    return letters.toList()..sort();
-  }
 
   void _scrollToLetter(String letter, List<Artist> artists) {
     int index = -1;
@@ -146,7 +152,7 @@ class _ArtistsScreenState extends ConsumerState<ArtistsScreen> {
                   right: 0,
                   bottom: kMiniPlayerHeight + 16,
                   child: AlphabeticalScrollBar(
-                    letters: _extractLetters(artists),
+                    letters: ref.watch(artistsLettersProvider),
                     onLetterTapped: (letter) {
                       _scrollToLetter(letter, artists);
                     },
