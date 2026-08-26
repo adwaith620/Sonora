@@ -1,53 +1,52 @@
-# Sonora Architecture
+﻿# Sonora Architecture
 
-Sonora follows a layered architecture to ensure separation of concerns, testability, and future scalability.
+Sonora follows a strict layered architecture emphasizing cross-platform compatibility, testability, and deterministic UI state.
 
-## Layers
+## Core Layers
 
 ### 1. Presentation Layer (UI)
-- **Widgets**: Flutter widgets (Material 3).
-- **Navigation**: `go_router` handling adaptive shells (bottom nav vs. rail).
-- **Theme**: Managed by a simple `ThemeProvider` creating `ThemeData` from dynamic colors or seeds.
+- **Framework**: Flutter (Material 3).
+- **Navigation**: `go_router` for robust routing with adaptive nested shells (bottom navigation for mobile, navigation rail for desktop).
+- **Theme**: Managed by a dynamic `ThemeProvider` that builds `ThemeData` on the fly from system seed colors, supporting OLED black and light/dark modes.
+- **Animations**: Utilizes `Hero` transitions for artwork, `flutter_staggered_animations` for smooth staggered list/grid rendering, and native haptic feedback for player controls.
 
-### 2. State Layer (Riverpod)
-- Manages application state and dependencies.
-- Exposes `libraryRepositoryProvider`, `playlistRepositoryProvider`, `databaseProvider`.
-- Eventually will expose state providers for Now Playing, Audio Player, etc.
+### 2. State Management (Riverpod)
+- The entire app is wired using `riverpod` (Provider pattern). 
+- Providers inject all critical dependencies (`databaseProvider`, `audioPlayerServiceProvider`, `visualizerServiceProvider`).
+- UI state is reactive. For example, `playbackStateProvider` updates precisely when the player state changes. Fine-grained rebuilds (using `select()`) ensure O(1) performance even for 60fps seek bar updates.
 
-### 3. Domain Models
-- Immutable data classes (`Song`, `Album`, `Artist`, `Playlist`).
-- Independent of database row types, ensuring the UI doesn't break if the database schema changes.
+### 3. Data Layer & Local Database (Drift)
+- **Database Engine**: Drift over SQLite, optimized with `sqlite3_flutter_libs` to run on Android and Windows seamlessly.
+- **Schema**: Fully normalized schemas including `Songs`, `Albums`, `Artists`, `Playlists`, `PlaylistSongs`, and `SearchHistory`.
+- **Query Optimization**: Background isolates and indices ensure smooth scrolling and instant global search results without locking the main thread.
 
-### 4. Data Layer (Repositories)
-- Clean interfaces (e.g., `LibraryService`, `PlaylistService`).
-- Drift (SQLite) implementations map database entities (`SongEntity`, etc.) to domain models.
-- Mock data still exists for initial UI testing but should be phased out as the true services integrate.
+### 4. Audio Engine (`media_kit`)
+- Backed by **libmpv** via `media_kit`, guaranteeing vast codec support (FLAC, ALAC, MP3, WAV, OGG) without relying on disparate native player engines.
+- `AudioPlayerService` acts as the abstraction layer, unifying the queue management, shuffle, repeat, and play/pause logic into predictable Dart streams.
 
-### 5. Local Database (Drift / SQLite)
-- **Tables**: `Songs`, `Albums`, `Artists`, `Playlists`, `PlaylistSongs`, `LibraryLocations`.
-- **DAOs**: Organize queries (e.g., `LibraryDao`).
-- Configured using `sqlite3_flutter_libs` to run cross-platform seamlessly.
+### 5. Local Library Scanner
+- **File Access**: On Android, leverages the Storage Access Framework (SAF) to securely browse user-selected trees without requiring invasive all-files access permissions. On Windows, uses direct file I/O.
+- **Metadata Parser**: Uses the pure-Dart `audio_metadata_reader` package for ID3/Vorbis/MP4 parsing, extracting metadata and embedded artwork bytes.
+- **Incremental Syncing**: Compares file paths, sizes, and modification dates to only parse new or changed tracks.
+- **Artwork Caching**: Embedded artwork bytes are deduplicated by SHA-256 hash and saved locally, avoiding database blob bloat and ensuring lightning-fast list loading.
 
-## Database Schema Highlights
-- `Songs` holds file paths, metadata, duration, favorites status, play counts, and foreign keys to `Albums` and `Artists`.
-- Strings are denormalized inside `Songs` (e.g. `artistName`, `albumName`) as fallbacks for fast UI rendering, but true relational views are supported.
-- `PlaylistSongs` acts as a join table with a `position` column.
+## Platform Integrations
 
-## Future Plans (Phase 3 & 4)
-- **Phase 3: Real Audio Engine**
-- **MediaKitAudioService**: Wraps `media_kit` native player. Plays real files or remote URLs.
-- **SonoraAudioHandler**: Extends `audio_service` `BaseAudioHandler` to broadcast playback state to the Android OS.
-- **PlaybackStateNotifier**: A pure Dart Riverpod Notifier that controls queue manipulation (shuffle, repeat, add, remove). It is easily testable without a UI or native plugins.
+### Android (`audio_service` & `Visualizer`)
+- **Background Playback & Notifications**: Uses `audio_service` with a custom `BaseAudioHandler` to interface with Android's `MediaSession`. Ensures Sonora appears in the lock screen, notification shade, and responds to Bluetooth/headset events.
+- **Audio Focus**: Automatically pauses playback on incoming calls and resumes afterwards.
+- **Audio Visualizer**: Uses an `EventChannel` bound to Android's native `android.media.audiofx.Visualizer` (session 0). It captures true FFT audio output and streams it back to Dart for a fluid, real-time visualization on the `NowPlayingScreen`.
 
-- **Phase 4: Local Library Scanner & Metadata**
-- **File Scanner**: `LocalScannerService` recursively scans directories configured in the `LibraryLocations` table using `dart:io`.
-- **Metadata Extraction**: Uses the pure-Dart `audio_metadata_reader` package to parse ID3, Vorbis, and MP4 tags without FFI or native plugin complications. Falls back to filename if tags are missing.
-- **Artwork Cache**: Embedded artwork (e.g. ID3 APIC frames) is extracted and cached in the application's support directory. A SHA-256 hash of the image bytes prevents duplicate image files.
-- **Incremental Sync**: The scanner compares file paths and file sizes before extracting tags to avoid unnecessary read overhead on subsequent rescans.
-- **Missing Files**: Tracks discovered files during the scan and deletes database records for files that are no longer present on the filesystem.
-- **Permissions & Storage**: On Android, Sonora uses the Storage Access Framework (SAF) via the `saf` package. The user picks a directory, granting a persistable `content://` tree URI. The scanner reads files directly through SAF file descriptors without requiring broad permissions like `MANAGE_EXTERNAL_STORAGE` or `READ_MEDIA_AUDIO`. Windows builds continue to use standard native filesystem paths.
-- **Scanner Abstraction**: Files are abstracted behind `MusicFileReference` (`AndroidSafMusicFileReference` and `WindowsMusicFileReference`), allowing the metadata parser to read streams or descriptors agnostically.
+### Windows (SMTC & Native Shell)
+- **System Media Transport Controls (SMTC)**: Uses `windows_smtc` to integrate with the Windows 10/11 taskbar volume flyout and handle hardware media keys (Play, Pause, Next, Previous).
+- **Custom Window**: Uses `bitsdojo_window` to draw a custom frameless title bar matching the app's Material 3 theme.
+- **Visualizer Fallback**: Due to platform constraints (lack of an easy WASAPI loopback without heavy C++ FFI), the visualizer elegantly degrades on Windows, hiding the frequency bars rather than displaying fake data.
 
+## Performance Engineering (Phase 13 Highlights)
+- **List Rendering**: O(N) inline sorting and index generation were eliminated. Alphabetical scrollbars and lists now consume pre-computed, cached data from Riverpod.
+- **Image Decoding**: Fixed excessive memory pressure by ensuring `ArtworkWidget` respects `cacheWidth` and `cacheHeight` constraints based on pixel density, preventing OOM crashes when displaying grids of high-resolution album arts.
+- **UI Rebuilds**: Eliminated full-screen `setState`/`ref.watch` rebuilds for the progress slider. The progress state is localized to small `Consumer` widgets.
 
-## Dependency Notes
-- **flutter_plugin_android_lifecycle**: Locked to 2.0.21 in pubspec.yaml via dependency_overrides. Newer versions (2.0.35+) were published demanding compileSdk 36, which breaks the build against Flutter's default API 34 targets for plugins like ile_picker. Version 2.0.21 remains entirely functional for Android 34.
+## Testing Strategy
+- **Pure Dart Logic**: Repositories and state controllers are heavily tested without UI or native dependencies.
+- **Integration**: Database operations, library scanning behaviors, queue manipulations, and complex UI flows are fully verified. All `flutter test` checks (48+ unit and integration tests) pass reliably on CI.

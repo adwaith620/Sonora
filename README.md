@@ -4,69 +4,39 @@
 
 A cross-platform offline music player for Android and Windows, built with Flutter and Material 3.
 
-> 🚧 **Work in Progress** — Sonora is under active development.
-
 ## Features
 
-- 🎵 **Local Music Playback** — Play MP3, FLAC, WAV, M4A/AAC, and OGG files from your device
-- 📱 **Cross-Platform** — Android and Windows desktop from a single codebase
-- 🎨 **Material 3 Design** — Dynamic colors, light/dark/OLED themes, adaptive layouts
-- 📚 **Library Management** — Browse by songs, albums, artists, playlists, and folders
-- 🔍 **Global Search** — Search across your entire music library
-- 🎛️ **Full Player Controls** — Shuffle, repeat, queue management, favorites
-- 📻 **Mini Player** — Persistent playback controls while browsing
-- 🖥️ **Adaptive Navigation** — Bottom nav on phones, navigation rail on tablets/desktop
+- **Local Music Playback** — Play MP3, FLAC, WAV, M4A/AAC, and OGG files from your device.
+- **Cross-Platform** — Android and Windows desktop from a single codebase.
+- **Material 3 Design** — Dynamic colors, light/dark themes, fluid animations, and adaptive layouts.
+- **Library Management** — Fast recursive scanning, metadata extraction, artwork caching, and smart sorting.
+- **Global Search** — Instant local full-text search across songs, artists, and albums with search history.
+- **Playlists & Favorites** — Create custom playlists, favorite tracks, and track recently played/added items.
+- **Queue Management** — Real-time queue, shuffle, repeat modes, and gapless-ready playback state.
+- **Audio Visualizer** — Native Android FFT-based audio visualizer synchronized with real-time playback.
+- **System Integration** — Android MediaSession (background playback, lock screen controls) and Windows SMTC (hardware media keys, taskbar controls).
+- **Performance Optimized** — Drift SQLite backend, efficient Riverpod state management, and optimized artwork rendering for large libraries.
 
 ## Screenshots
 
-*Coming soon*
+*(Screenshots can be placed here)*
 
 ## Architecture
 
-Sonora uses a clean, layered architecture:
+Sonora uses a clean, layered architecture leveraging:
+- **Flutter** & **Dart 3**
+- **Riverpod** for robust, testable state management
+- **Drift (SQLite)** for fast local data persistence
+- **media_kit** (libmpv) for rock-solid cross-platform audio playback
+- **audio_service** & **Windows SMTC** for native OS media integrations
 
-```
-lib/
-├── core/           # Constants, extensions, utilities
-├── data/
-│   ├── models/     # Song, Album, Artist, Playlist models
-│   └── database/   # Drift SQLite database (coming soon)
-├── services/       # Audio player, library scanner, playlist service
-├── theme/          # Material 3 theme system
-├── navigation/     # GoRouter + adaptive navigation shell
-└── ui/
-    ├── common/     # Shared widgets (artwork, song tile, etc.)
-    ├── home/       # Home screen with carousels
-    ├── songs/      # Song list with sorting
-    ├── albums/     # Album grid + detail view
-    ├── artists/    # Artist list + detail view
-    ├── playlists/  # Playlist management
-    ├── folders/    # Folder browser
-    ├── favorites/  # Favorites collection
-    ├── player/     # Now Playing + Mini Player
-    ├── search/     # Global search
-    ├── settings/   # App settings
-    └── visualizer/ # Audio visualizer (coming soon)
-```
-
-### Tech Stack
-
-| Layer | Technology |
-|:---|:---|
-| **Framework** | Flutter 3.47+ |
-| **Language** | Dart 3.13+ |
-| **State Management** | Riverpod |
-| **Navigation** | GoRouter |
-| **Database** | Drift (SQLite) — *coming soon* |
-| **Audio Engine** | media_kit (libmpv) — *coming soon* |
-| **Metadata** | metadata_god (Rust/lofty) — *coming soon* |
-| **Theming** | Material 3 + dynamic_color |
+For detailed architectural decisions and component breakdowns, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Getting Started
 
 ### Prerequisites
 
-- Flutter 3.47 or later
+- [Flutter SDK](https://flutter.dev/docs/get-started/install) (3.22+ recommended)
 - Android SDK (for Android builds)
 - Visual Studio with C++ Desktop workload (for Windows builds)
 
@@ -74,8 +44,8 @@ lib/
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/sonora.git
-cd sonora
+git clone https://github.com/adwaith620/Sonora.git
+cd Sonora
 
 # Install dependencies
 flutter pub get
@@ -86,43 +56,43 @@ flutter run -d android
 # Run on Windows
 flutter run -d windows
 
-# Run tests
+# Run all tests (Unit, Widget, Integration)
 flutter test
 ```
 
-### Building
+### Building for Release
 
+**Android APK:**
 ```bash
-# Android APK
-flutter build apk
-
-# Windows
-flutter build windows
+flutter build apk --release
 ```
+*Note: The APK will be output to `build/app/outputs/flutter-apk/app-release.apk`.*
 
-## Roadmap
+**Windows Desktop:**
+```bash
+flutter build windows --release
+```
+*Note: The Windows executable will be output to `build/windows/x64/runner/Release/sonora.exe`.*
 
-See [SONORA_ROADMAP.md](SONORA_ROADMAP.md) for detailed progress tracking.
+## Project Phases
 
-- [x] Phase 1: Project scaffold + Material 3 design system + adaptive navigation
-- [ ] Phase 2: Database schema + data layer
-- [ ] Phase 3: Library scanner + metadata extraction
-- [ ] Phase 4: Audio playback engine
-- [ ] Phase 5: Mini player + Now Playing (functional)
-- [ ] Phase 6: Home screen (data-driven)
-- [ ] Phase 7: Playlists + Favorites
-- [ ] Phase 8: Search
-- [ ] Phase 9: Audio visualizer
-- [ ] Phase 10: Android media controls
-- [ ] Phase 11: Windows integration
-- [ ] Phase 12: Testing
-- [ ] Phase 13: Performance optimization
-- [ ] Phase 14: UI polish
-- [ ] Phase 15: Documentation + release
+This project was developed iteratively in 15 distinct phases. See [SONORA_ROADMAP.md](SONORA_ROADMAP.md) for a historical tracking of the milestones.
 
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+- Phase 1: Material 3 UI Foundation
+- Phase 2: Drift SQLite Database
+- Phase 3: Real Audio Engine (`media_kit` + `audio_service`)
+- Phase 4: Local Library Scanner & Metadata (`audio_metadata_reader`)
+- Phase 5: Player UI Integration
+- Phase 6: Home Screen + Library UI
+- Phase 7: Playlists + Favorites
+- Phase 8: Search
+- Phase 9: Audio Visualizer
+- Phase 10: Android Platform Integration
+- Phase 11: Windows Platform Integration
+- Phase 12: Comprehensive Testing
+- Phase 13: Performance Optimization
+- Phase 14: UI Polish & Animations
+- Phase 15: Final Documentation and Build
 
 ## License
 
