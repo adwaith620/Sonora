@@ -35,11 +35,14 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.settings_outlined),
-          onPressed: () {},
+          onPressed: () => context.push('/settings'),
         ),
         title: const Text(kAppName),
         actions: [
-          IconButton(icon: const Icon(Icons.search_rounded), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.search_rounded),
+            onPressed: () => context.push('/search'),
+          ),
         ],
       ),
       body: ListView(

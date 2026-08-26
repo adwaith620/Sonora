@@ -21,7 +21,10 @@ class PlaylistsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Playlists'),
         actions: [
-          IconButton(icon: const Icon(Icons.search_rounded), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.search_rounded),
+            onPressed: () => context.push('/search'),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
