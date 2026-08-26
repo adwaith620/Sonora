@@ -48,10 +48,13 @@ class _AppShellState extends ConsumerState<AppShell> {
       final theme = Theme.of(context);
       child = Column(
         children: [
-          WindowCaption(
-            brightness: theme.brightness,
-            title: const Text(kAppName),
-            backgroundColor: theme.colorScheme.surface,
+          SizedBox(
+            height: kWindowCaptionHeight,
+            child: WindowCaption(
+              brightness: theme.brightness,
+              title: const Text(kAppName),
+              backgroundColor: theme.colorScheme.surface,
+            ),
           ),
           Expanded(child: layout),
         ],
